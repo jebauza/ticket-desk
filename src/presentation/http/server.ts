@@ -1,5 +1,6 @@
 import express, { Router } from 'express';
 import path from 'path';
+import { errorHandler } from './middlewares/error-handler.middleware';
 
 interface Options {
   port: number;
@@ -37,10 +38,13 @@ export class Server {
     //* SPA /^\/(?!api).*/  <== Únicamente si no empieza con la palabra api
     this.app.get(/^\/(?!api).*/, (req, res) => {
       const indexPath = path.join(
-        __dirname + `../../../${this.publicPath}/index.html`,
+        __dirname + `../../../../${this.publicPath}/index.html`,
       );
       res.sendFile(indexPath);
     });
+
+    //* Error handler (siempre al final)
+    this.app.use(errorHandler);
   }
 
   async start() {

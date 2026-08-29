@@ -6,8 +6,8 @@ interface Options {
   path?: string; // ws
 }
 
-export class WssService {
-  private static _instance: WssService;
+export class WssServer {
+  private static _instance: WssServer;
   private wss: WebSocketServer;
 
   private constructor(options: Options) {
@@ -16,15 +16,15 @@ export class WssService {
     this.start();
   }
 
-  static get instance(): WssService {
-    if (!WssService._instance) {
-      throw 'WssService not initialized';
+  static get instance(): WssServer {
+    if (!WssServer._instance) {
+      throw 'WssServer not initialized';
     }
-    return WssService._instance;
+    return WssServer._instance;
   }
 
   static initWss(options: Options) {
-    WssService._instance = new WssService(options);
+    WssServer._instance = new WssServer(options);
   }
 
   public start() {
