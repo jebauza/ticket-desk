@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { TicketService } from '../../../domain/services/ticket.service';
-import { TicketRepositoryImpl } from '../../../infrastructure/repositories/ticket.repository.impl';
+import { TicketRepositoryImpl } from '../../../infrastructure/repositories/tickets/ticket.repository.impl';
 import { TicketPostgresDatasource } from '../../../infrastructure/data/postgres/tickets/ticket.postgres.datasource';
 import { UuidAdapter } from '../../../infrastructure/adapters/uuid.adapter';
 import { TicketController } from './controller';
