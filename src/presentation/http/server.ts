@@ -34,7 +34,9 @@ export class Server {
 
     //* Routes
     // this.app.use(this.routes);
+  }
 
+  private registerFallbacks() {
     //* SPA /^\/(?!api).*/  <== Únicamente si no empieza con la palabra api
     this.app.get(/^\/(?!api).*/, (req, res) => {
       const indexPath = path.join(
@@ -49,6 +51,7 @@ export class Server {
 
   public setRoutes(router: Router) {
     this.app.use(router);
+    this.registerFallbacks();
   }
 
   async start() {

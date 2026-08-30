@@ -1,5 +1,4 @@
-mongo/
-postgres/
+/postgres/
 node_modules/
 dist/
 build/

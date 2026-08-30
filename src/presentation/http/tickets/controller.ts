@@ -1,34 +1,53 @@
 import { NextFunction, Request, Response } from 'express';
 import { TicketService } from '../../../domain/services/ticket.service';
-import { UuidAdapter } from '../../../infrastructure/adapters/uuid.adapter';
 
 export class TicketController {
-  constructor(private readonly service: TicketService = new TicketService(UuidAdapter)) {}
+  constructor(private readonly service: TicketService) {}
 
-  public getTickets = async (req: Request, res: Response) => {
-    res.json(this.service.tickets);
+  public getTickets = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.json(await this.service.getTickets());
+    } catch (error) {
+      next(error);
+    }
   };
 
-  public getLastTicket = async (req: Request, res: Response) => {
-    res.json(this.service.lastTicketNumber);
+  public getLastTicket = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.json(await this.service.getLastTicketNumber());
+    } catch (error) {
+      next(error);
+    }
   };
 
-  public pendingTickets = async (req: Request, res: Response) => {
-    res.json(this.service.pendingTickets);
+  public pendingTickets = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.json(await this.service.getPendingTickets());
+    } catch (error) {
+      next(error);
+    }
   };
 
-  public createTicket = async (req: Request, res: Response) => {
-    res.status(201).json(this.service.createTicket());
+  public createTicket = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.status(201).json(await this.service.createTicket());
+    } catch (error) {
+      next(error);
+    }
   };
 
-  public drawTicket = async (req: Request, res: Response) => {
+  public drawTicket = async (req: Request, res: Response, next: NextFunction) => {
     const { desk } = req.params;
     if (typeof desk !== 'string') {
       res.status(400).json({ error: 'desk param is required' });
       return;
     }
 
-    res.json(this.service.drawTicket(desk));
+    try {
+      res.json(await this.service.drawTicket(desk));
+    } catch (error) {
+      next(error);
+    }
   };
 
   public ticketFinished = async (req: Request, res: Response, next: NextFunction) => {
@@ -39,13 +58,17 @@ export class TicketController {
     }
 
     try {
-      res.json(this.service.onFinishedTicket(ticketId));
+      res.json(await this.service.onFinishedTicket(ticketId));
     } catch (error) {
       next(error);
     }
   };
 
-  public workingOn = async (req: Request, res: Response) => {
-    res.json({ ok: true, msg: 'workingOn' });
+  public workingOn = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.json(await this.service.getLast4WorkingOnTickets());
+    } catch (error) {
+      next(error);
+    }
   };
 }

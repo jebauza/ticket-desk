@@ -3,12 +3,22 @@ import { envs } from './config/envs';
 import { AppRoutes } from './presentation/http/routes';
 import { Server } from './presentation/http/server';
 import { WssServer } from './infrastructure/websocket/wss.server';
+import { PostgresDatabase } from './infrastructure/data/postgres/postgres.database';
 
 (async () => {
-  main();
+  await main();
 })();
 
-function main() {
+async function main() {
+  await PostgresDatabase.connect({
+    host: envs.DB_HOST,
+    port: envs.DB_PORT,
+    database: envs.DB_NAME,
+    user: envs.DB_USER,
+    password: envs.DB_PASSWORD,
+  });
+  console.log('Postgres connected');
+
   const server = new Server({
     port: envs.PORT,
     // routes: AppRoutes.routes,

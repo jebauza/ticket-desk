@@ -1,77 +1,67 @@
-import { Ticket } from '../interfaces/ticket';
+import { TicketEntity } from '../entities/ticket.entity';
 import { CustomError } from '../errors/custom.error';
 import { IdManager } from '../interfaces/id-manager';
+import { TicketRepository } from '../repositories/ticket.repository';
 
 export class TicketService {
-  public readonly tickets: Ticket[];
+  constructor(
+    private readonly repository: TicketRepository,
+    private readonly idManager: IdManager,
+  ) {}
 
-  constructor(private readonly idManager: IdManager) {
-    this.tickets = [1, 2, 3, 4, 5, 6].map((number) => ({
-      id: this.idManager.generate(),
-      number,
-      createAt: new Date(),
-      done: false,
-    }));
+  public async seedTickets(): Promise<void> {
+    const count = await this.repository.countAll();
+    if (count > 0) return;
+
+    const tickets: TicketEntity[] = [1, 2, 3, 4, 5, 6].map((number) =>
+      TicketEntity.fromObject({
+        id: this.idManager.generate(),
+        number,
+        createAt: new Date(),
+        done: false,
+      }),
+    );
+
+    await this.repository.seed(tickets);
   }
 
-  private readonly workingOnTickets: Ticket[] = [];
-
-  public get pendingTickets(): Ticket[] {
-    return this.tickets.filter((ticket) => !ticket.handleAtDesk);
+  public getTickets(): Promise<TicketEntity[]> {
+    return this.repository.getAll();
   }
 
-  public get lastTicketNumber(): number {
-    return this.tickets.length > 0
-      ? this.tickets[this.tickets.length - 1]!.number
-      : 0;
+  public getPendingTickets(): Promise<TicketEntity[]> {
+    return this.repository.getPending();
   }
 
-  public get last4WorkingOnTickets(): Ticket[] {
-    return this.workingOnTickets.slice(0, 4);
+  public getLastTicketNumber(): Promise<number> {
+    return this.repository.getLastNumber();
   }
 
-  public createTicket(): Ticket {
-    const ticket: Ticket = {
-      id: this.idManager.generate(),
-      number: this.lastTicketNumber + 1,
-      createAt: new Date(),
-      done: false,
-    };
+  public getLast4WorkingOnTickets(): Promise<TicketEntity[]> {
+    return this.repository.getWorkingOn(4);
+  }
 
-    this.tickets.push(ticket);
+  public async createTicket(): Promise<TicketEntity> {
+    const ticket = await this.repository.create(this.idManager.generate());
     // TODO WS
 
     return ticket;
   }
 
-  public drawTicket(desk: string) {
-    const ticket = this.pendingTickets[0];
+  public async drawTicket(desk: string) {
+    const ticket = await this.repository.drawNext(desk);
     if (!ticket) return { ok: false, msg: 'No hay tickets pendientes' };
-
-    ticket.handleAtDesk = desk;
-    ticket.handleAt = new Date();
-
-    this.workingOnTickets.unshift({ ...ticket });
 
     // TODO WS
 
     return { ok: true, ticket };
   }
 
-  public onFinishedTicket(id: string) {
+  public async onFinishedTicket(id: string) {
     if (!this.idManager.isValid(id))
       throw CustomError.badRequest('Id is not a valid uuid');
-    let ticket = null;
 
-    this.tickets.map((t) => {
-      if (t.id === id) {
-        t.done = true;
-        ticket = t;
-      }
-
-      return t;
-    });
-
+    const ticket = await this.repository.markAsDone(id);
     if (!ticket) throw CustomError.notFound('Ticket not found');
 
     return { ok: true };
