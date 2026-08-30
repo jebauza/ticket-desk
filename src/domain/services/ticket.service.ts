@@ -5,9 +5,9 @@ import { IdManager } from '../interfaces/id-manager';
 export class TicketService {
   public readonly tickets: Ticket[];
 
-  constructor(private readonly idGenerator: IdManager) {
+  constructor(private readonly idManager: IdManager) {
     this.tickets = [1, 2, 3, 4, 5, 6].map((number) => ({
-      id: this.idGenerator.generate(),
+      id: this.idManager.generate(),
       number,
       createAt: new Date(),
       done: false,
@@ -32,7 +32,7 @@ export class TicketService {
 
   public createTicket(): Ticket {
     const ticket: Ticket = {
-      id: this.idGenerator.generate(),
+      id: this.idManager.generate(),
       number: this.lastTicketNumber + 1,
       createAt: new Date(),
       done: false,
@@ -59,7 +59,7 @@ export class TicketService {
   }
 
   public onFinishedTicket(id: string) {
-    if (!this.idGenerator.isValid(id))
+    if (!this.idManager.isValid(id))
       throw CustomError.badRequest('Id is not a valid uuid');
     let ticket = null;
 
