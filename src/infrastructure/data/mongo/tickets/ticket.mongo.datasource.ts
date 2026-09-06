@@ -1,6 +1,6 @@
 import { Collection } from 'mongodb';
 import { TicketEntity } from '../../../../domain/entities/ticket.entity';
-import { TicketDatasource } from '../../../repositories/tickets/ticket.datasource';
+import { TicketDatasource } from '../../../../domain/datasources/ticket.datasource';
 import { MongoDatabase } from '../mongo.database';
 import { TicketDocument, TicketMongoMapper } from './ticket.mongo.mapper';
 

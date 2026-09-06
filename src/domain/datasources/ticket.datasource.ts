@@ -1,4 +1,4 @@
-import { TicketEntity } from '../../../domain/entities/ticket.entity';
+import { TicketEntity } from '../entities/ticket.entity';
 
 export abstract class TicketDatasource {
   abstract getAll(): Promise<TicketEntity[]>;

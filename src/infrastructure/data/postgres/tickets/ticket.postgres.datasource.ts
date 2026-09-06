@@ -1,5 +1,5 @@
 import { TicketEntity } from '../../../../domain/entities/ticket.entity';
-import { TicketDatasource } from '../../../repositories/tickets/ticket.datasource';
+import { TicketDatasource } from '../../../../domain/datasources/ticket.datasource';
 import { PostgresDatabase } from '../postgres.database';
 import { TicketMapper } from './ticket.postgres.mapper';
 

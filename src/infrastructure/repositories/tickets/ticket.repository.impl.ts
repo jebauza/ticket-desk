@@ -1,6 +1,6 @@
 import { TicketEntity } from '../../../domain/entities/ticket.entity';
 import { CustomError } from '../../../domain/errors/custom.error';
-import { TicketDatasource } from './ticket.datasource';
+import { TicketDatasource } from '../../../domain/datasources/ticket.datasource';
 import { TicketRepository } from '../../../domain/repositories/ticket.repository';
 
 export class TicketRepositoryImpl extends TicketRepository {
