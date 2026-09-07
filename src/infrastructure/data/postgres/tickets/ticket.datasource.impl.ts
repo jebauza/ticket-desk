@@ -3,7 +3,7 @@ import { TicketDatasource } from '../../../../domain/datasources/ticket.datasour
 import { PostgresDatabase } from '../postgres.database';
 import { TicketMapper } from './ticket.postgres.mapper';
 
-export class TicketPostgresDatasource extends TicketDatasource {
+export class TicketDatasourceImpl extends TicketDatasource {
   private get pool() {
     return PostgresDatabase.instance.pool;
   }

@@ -6,7 +6,7 @@ import { TicketApiMapper, TicketApiResponse } from './ticket.api.mapper';
 // Endpoints asumidos, ilustrativos: ajustar rutas y payloads al contrato
 // real de la API externa que se integre. La mecánica HTTP en sí (fetch,
 // axios, lo que sea) queda encapsulada en HttpClientAdapter.
-export class TicketApiDatasource extends TicketDatasource {
+export class TicketDatasourceImpl extends TicketDatasource {
   private get client() {
     return ExternalApiClient.instance;
   }

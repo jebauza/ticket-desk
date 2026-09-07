@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsnd --respawn src/app.ts",
-    "seed": "tsnd --respawn src/presentation/cli/ticket.seed.command.ts",
+    "seed": "ts-node src/presentation/cli/ticket.seed.command.ts",
     "build": "rimraf ./dist && tsc -p tsconfig.build.json",
     "start": "npm run build && node dist/app.js"
   },

@@ -9,7 +9,7 @@ interface CounterDocument {
   seq: number;
 }
 
-export class TicketMongoDatasource extends TicketDatasource {
+export class TicketDatasourceImpl extends TicketDatasource {
   private get collection(): Collection<TicketDocument> {
     return MongoDatabase.instance.db.collection<TicketDocument>('tickets');
   }

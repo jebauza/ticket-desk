@@ -1,6 +1,6 @@
 import { envs } from '../../config/envs';
 import { PostgresDatabase } from '../../infrastructure/data/postgres/postgres.database';
-import { TicketPostgresDatasource } from '../../infrastructure/data/postgres/tickets/ticket.postgres.datasource';
+import { TicketDatasourceImpl } from '../../infrastructure/data/postgres/tickets/ticket.datasource.impl';
 import { TicketRepositoryImpl } from '../../infrastructure/repositories/tickets/ticket.repository.impl';
 import { TicketService } from '../../domain/services/ticket.service';
 import { UuidAdapter } from '../../infrastructure/adapters/uuid.adapter';
@@ -18,7 +18,7 @@ async function main() {
     password: envs.DB_PASSWORD,
   });
 
-  const datasource = new TicketPostgresDatasource();
+  const datasource = new TicketDatasourceImpl();
   const repository = new TicketRepositoryImpl(datasource);
   const service = new TicketService(repository, UuidAdapter);
 

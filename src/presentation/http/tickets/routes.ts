@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { TicketService } from '../../../domain/services/ticket.service';
 import { TicketRepositoryImpl } from '../../../infrastructure/repositories/tickets/ticket.repository.impl';
-import { TicketPostgresDatasource } from '../../../infrastructure/data/postgres/tickets/ticket.postgres.datasource';
+import { TicketDatasourceImpl } from '../../../infrastructure/data/postgres/tickets/ticket.datasource.impl';
 import { UuidAdapter } from '../../../infrastructure/adapters/uuid.adapter';
 import { TicketController } from './controller';
 
@@ -9,7 +9,7 @@ export class TicketRoutes {
   static get routes(): Router {
     const router = Router();
 
-    const datasource = new TicketPostgresDatasource();
+    const datasource = new TicketDatasourceImpl();
     const repository = new TicketRepositoryImpl(datasource);
     const service = new TicketService(repository, UuidAdapter);
     const controller = new TicketController(service);
