@@ -1,23 +1,29 @@
+import { HttpClient } from './core/http-client.js';
+
 const currentTicketLbl = document.querySelector('span');
 const createTiketBtn = document.getElementById('btn-new-ticket');
 
 async function getLastTicket() {
-  const lastTicket = await fetch('/api/tickets/last').then(res => res.json());
-  currentTicketLbl.innerText = lastTicket.number;
+  try {
+    const ticket = await HttpClient.get('/api/tickets/last');
+    currentTicketLbl.innerText = ticket.number;
+  } catch (err) {
+    currentTicketLbl.innerText = '—';
+    console.error('No se pudo obtener el último ticket:', err);
+  }
 }
 
 async function createTicket() {
-  const res = await fetch('/api/tickets', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  const newTicket = await res.json();
+  return HttpClient.post('/api/tickets');
 }
 
-createTiketBtn.addEventListener('click', (event) => {
-  createTicket();
-  getLastTicket();
+createTiketBtn.addEventListener('click', async () => {
+  try {
+    await createTicket();
+    await getLastTicket();
+  } catch (err) {
+    console.error('No se pudo crear el ticket:', err);
+  }
 });
 
 getLastTicket();
