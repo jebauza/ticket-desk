@@ -29,9 +29,9 @@ export class TicketRepositoryImpl extends TicketRepository {
     }
   }
 
-  async getLastNumber(): Promise<number> {
+  async getLast(): Promise<TicketEntity | null> {
     try {
-      return await this.datasource.getLastNumber();
+      return await this.datasource.getLast();
     } catch (error) {
       throw this.handleError(error);
     }

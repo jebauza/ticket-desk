@@ -1,7 +1,7 @@
 import { TicketEntity } from '../../../../domain/entities/ticket.entity';
 import { TicketDatasource } from '../../../../domain/datasources/ticket.datasource';
 import { ExternalApiClient } from '../external-api.client';
-import { TicketApiMapper, TicketApiResponse } from './ticket.api.mapper';
+import { TicketApiMapper, TicketApiResponse } from './ticket.mapper';
 
 // Endpoints asumidos, ilustrativos: ajustar rutas y payloads al contrato
 // real de la API externa que se integre. La mecánica HTTP en sí (fetch,
@@ -21,9 +21,9 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return data.map(TicketApiMapper.fromResponse);
   }
 
-  async getLastNumber(): Promise<number> {
-    const { data } = await this.client.get<{ lastNumber: number }>('/tickets/last');
-    return data.lastNumber;
+  async getLast(): Promise<TicketEntity | null> {
+    const { data } = await this.client.get<TicketApiResponse | null>('/tickets/last');
+    return data ? TicketApiMapper.fromResponse(data) : null;
   }
 
   async getWorkingOn(limit: number): Promise<TicketEntity[]> {

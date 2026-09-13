@@ -1,5 +1,14 @@
+interface TicketCreateProps {
+  id: string;
+  number: number;
+  createAt?: Date | string;
+  handleAtDesk?: string | null;
+  handleAt?: Date | string | null;
+  done?: boolean;
+}
+
 export class TicketEntity {
-  constructor(
+  private constructor(
     public id: string,
     public number: number,
     public createAt: Date,
@@ -12,21 +21,38 @@ export class TicketEntity {
     return this.handleAtDesk === null;
   }
 
-  static fromObject(object: { [key: string]: any }): TicketEntity {
-    const { id, number, createAt, handleAtDesk, handleAt, done } = object;
-    if (id === undefined) throw new Error('id is required');
-    if (number === undefined) throw new Error('number is required');
+  static create(props: TicketCreateProps): TicketEntity {
+    const { id, number, createAt, handleAtDesk, handleAt, done } = props;
 
-    const parsedCreateAt = createAt ? new Date(createAt) : new Date();
-    const parsedHandleAt = handleAt ? new Date(handleAt) : null;
+    if (!id) throw new Error('id is required');
+    if (number === undefined || number === null) {
+      throw new Error('number is required');
+    }
+    if (number <= 0) throw new Error('number must be a positive integer');
+    if (!handleAtDesk && handleAt) {
+      throw new Error('a ticket without desk cannot have handleAt');
+    }
 
     return new TicketEntity(
       id,
       number,
-      parsedCreateAt,
+      createAt ? new Date(createAt) : new Date(),
       handleAtDesk ?? null,
-      parsedHandleAt,
+      handleAt ? new Date(handleAt) : null,
       !!done,
     );
+  }
+
+  static fromObject(object: { [key: string]: any }): TicketEntity {
+    const { id, number, createAt, handleAtDesk, handleAt, done } = object;
+
+    return TicketEntity.create({
+      id,
+      number,
+      createAt,
+      handleAtDesk,
+      handleAt,
+      done,
+    });
   }
 }

@@ -14,7 +14,7 @@ export class TicketService {
     if (count > 0) return;
 
     const tickets: TicketEntity[] = [1, 2, 3, 4, 5, 6].map((number) =>
-      TicketEntity.fromObject({
+      TicketEntity.create({
         id: this.idManager.generate(),
         number,
         createAt: new Date(),
@@ -33,8 +33,11 @@ export class TicketService {
     return this.repository.getPending();
   }
 
-  public getLastTicketNumber(): Promise<number> {
-    return this.repository.getLastNumber();
+  public async getLastTicket(): Promise<TicketEntity> {
+    const ticket = await this.repository.getLast();
+    if (!ticket) throw CustomError.notFound('No tickets found');
+
+    return ticket;
   }
 
   public getLast4WorkingOnTickets(): Promise<TicketEntity[]> {

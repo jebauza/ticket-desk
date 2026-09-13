@@ -1,7 +1,7 @@
 import { TicketEntity } from '../../../../domain/entities/ticket.entity';
 import { TicketDatasource } from '../../../../domain/datasources/ticket.datasource';
 import { PostgresDatabase } from '../postgres.database';
-import { TicketMapper } from './ticket.postgres.mapper';
+import { TicketMapper } from './ticket.mapper';
 
 export class TicketDatasourceImpl extends TicketDatasource {
   private get pool() {
@@ -24,12 +24,12 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return rows.map(TicketMapper.fromRow);
   }
 
-  async getLastNumber(): Promise<number> {
+  async getLast(): Promise<TicketEntity | null> {
     const { rows } = await this.pool.query(
-      'SELECT COALESCE(MAX(number), 0) AS last_number FROM tickets',
+      'SELECT * FROM tickets ORDER BY number DESC LIMIT 1',
     );
 
-    return Number(rows[0]?.last_number ?? 0);
+    return rows[0] ? TicketMapper.fromRow(rows[0]) : null;
   }
 
   async getWorkingOn(limit: number): Promise<TicketEntity[]> {
@@ -80,7 +80,9 @@ export class TicketDatasourceImpl extends TicketDatasource {
   }
 
   async countAll(): Promise<number> {
-    const { rows } = await this.pool.query('SELECT COUNT(*)::int AS count FROM tickets');
+    const { rows } = await this.pool.query(
+      'SELECT COUNT(*)::int AS count FROM tickets',
+    );
 
     return Number(rows[0]?.count ?? 0);
   }

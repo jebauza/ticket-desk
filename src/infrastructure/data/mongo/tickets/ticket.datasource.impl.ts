@@ -2,7 +2,7 @@ import { Collection } from 'mongodb';
 import { TicketEntity } from '../../../../domain/entities/ticket.entity';
 import { TicketDatasource } from '../../../../domain/datasources/ticket.datasource';
 import { MongoDatabase } from '../mongo.database';
-import { TicketDocument, TicketMongoMapper } from './ticket.mongo.mapper';
+import { TicketDocument, TicketMongoMapper } from './ticket.mapper';
 
 interface CounterDocument {
   _id: string;
@@ -32,9 +32,14 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return docs.map(TicketMongoMapper.fromDocument);
   }
 
-  async getLastNumber(): Promise<number> {
-    const [last] = await this.collection.find().sort({ number: -1 }).limit(1).toArray();
-    return last?.number ?? 0;
+  async getLast(): Promise<TicketEntity | null> {
+    const [last] = await this.collection
+      .find()
+      .sort({ number: -1 })
+      .limit(1)
+      .toArray();
+
+    return last ? TicketMongoMapper.fromDocument(last) : null;
   }
 
   async getWorkingOn(limit: number): Promise<TicketEntity[]> {

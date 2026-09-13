@@ -1,42 +1,70 @@
 import { NextFunction, Request, Response } from 'express';
 import { TicketService } from '../../../domain/services/ticket.service';
+import { TicketPresenter } from './presenters/ticket.presenter';
+import { ApiResponse } from '../shared/api-response';
 
 export class TicketController {
   constructor(private readonly service: TicketService) {}
 
-  public getTickets = async (req: Request, res: Response, next: NextFunction) => {
+  public getTickets = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      res.json(await this.service.getTickets());
+      const tickets = await this.service.getTickets();
+      res.json(TicketPresenter.fromEntities(tickets));
     } catch (error) {
       next(error);
     }
   };
 
-  public getLastTicket = async (req: Request, res: Response, next: NextFunction) => {
+  public getLastTicket = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      res.json(await this.service.getLastTicketNumber());
+      const ticket = await this.service.getLastTicket();
+      res
+        .status(200)
+        .json(ApiResponse.success(TicketPresenter.fromEntity(ticket)));
     } catch (error) {
       next(error);
     }
   };
 
-  public pendingTickets = async (req: Request, res: Response, next: NextFunction) => {
+  public pendingTickets = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      res.json(await this.service.getPendingTickets());
+      const tickets = await this.service.getPendingTickets();
+      res.json(ApiResponse.success(TicketPresenter.fromEntities(tickets)));
     } catch (error) {
       next(error);
     }
   };
 
-  public createTicket = async (req: Request, res: Response, next: NextFunction) => {
+  public createTicket = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      res.status(201).json(await this.service.createTicket());
+      const ticket = await this.service.createTicket();
+      res.status(201).json(TicketPresenter.fromEntity(ticket));
     } catch (error) {
       next(error);
     }
   };
 
-  public drawTicket = async (req: Request, res: Response, next: NextFunction) => {
+  public drawTicket = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     const { desk } = req.params;
     if (typeof desk !== 'string') {
       res.status(400).json({ error: 'desk param is required' });
@@ -44,13 +72,22 @@ export class TicketController {
     }
 
     try {
-      res.json(await this.service.drawTicket(desk));
+      const result = await this.service.drawTicket(desk);
+      res.json(
+        'ticket' in result
+          ? { ok: true, ticket: TicketPresenter.fromEntity(result.ticket) }
+          : result,
+      );
     } catch (error) {
       next(error);
     }
   };
 
-  public ticketFinished = async (req: Request, res: Response, next: NextFunction) => {
+  public ticketFinished = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     const { ticketId } = req.params;
     if (typeof ticketId !== 'string') {
       res.status(400).json({ error: 'ticketId param is required' });
@@ -64,9 +101,14 @@ export class TicketController {
     }
   };
 
-  public workingOn = async (req: Request, res: Response, next: NextFunction) => {
+  public workingOn = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
-      res.json(await this.service.getLast4WorkingOnTickets());
+      const tickets = await this.service.getLast4WorkingOnTickets();
+      res.json(TicketPresenter.fromEntities(tickets));
     } catch (error) {
       next(error);
     }
