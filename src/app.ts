@@ -23,6 +23,8 @@ process.on('uncaughtException', (error) => {
 });
 
 async function main() {
+  const port = envs.APP_PORT;
+
   await PostgresDatabase.connect({
     host: envs.DB_HOST,
     port: envs.DB_PORT,
@@ -35,16 +37,18 @@ async function main() {
   );
 
   const server = new Server({
-    port: envs.PORT,
+    port: port,
     // routes: ApiRoutes.routes,
   });
 
   const httpServer = createServer(server.app);
-  WssServer.initWss({ server: httpServer });
+  WssServer.initWss({ server: httpServer, path: '/ws' });
 
   server.setRoutes(ApiRoutes.routes);
 
-  httpServer.listen(envs.PORT, () => {
-    console.log(`API listening on http://localhost:${envs.PORT}/api`);
+  httpServer.listen(port, () => {
+    const baseUrl = `${envs.APP_URL}:${port}`;
+    console.log(`HTML listening on ${baseUrl}`);
+    console.log(`API listening on ${baseUrl}/api`);
   });
 }

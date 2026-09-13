@@ -1,4 +1,4 @@
-import { HttpClient } from './core/http-client.js';
+import { HttpClient } from './adapters/http-client.js';
 
 const currentTicketLbl = document.querySelector('span');
 const createTiketBtn = document.getElementById('btn-new-ticket');

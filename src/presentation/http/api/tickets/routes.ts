@@ -4,6 +4,7 @@ import { TicketRepositoryImpl } from '../../../../infrastructure/repositories/ti
 import { TicketDatasourceImpl } from '../../../../infrastructure/data/postgres/tickets/ticket.datasource.impl';
 import { UuidAdapter } from '../../../../infrastructure/adapters/uuid.adapter';
 import { TicketController } from './controller';
+import { WssNotifier } from '../../../../infrastructure/websocket/wss.notifier';
 
 export class TicketRoutes {
   static get routes(): Router {
@@ -11,7 +12,11 @@ export class TicketRoutes {
 
     const datasource = new TicketDatasourceImpl();
     const repository = new TicketRepositoryImpl(datasource);
-    const service = new TicketService(repository, UuidAdapter);
+    const service = new TicketService(
+      repository,
+      UuidAdapter,
+      new WssNotifier(),
+    );
     const controller = new TicketController(service);
 
     router.get('/', controller.getTickets);

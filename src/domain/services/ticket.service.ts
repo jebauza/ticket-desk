@@ -1,12 +1,14 @@
 import { TicketEntity } from '../entities/ticket.entity';
 import { CustomError } from '../errors/custom.error';
 import { IdManager } from '../interfaces/id-manager';
+import { RealtimeNotifier } from '../interfaces/realtime-notifier';
 import { TicketRepository } from '../repositories/ticket.repository';
 
 export class TicketService {
   constructor(
     private readonly repository: TicketRepository,
     private readonly idManager: IdManager,
+    private readonly notifier: RealtimeNotifier,
   ) {}
 
   public async seedTickets(): Promise<void> {
@@ -46,7 +48,7 @@ export class TicketService {
 
   public async createTicket(): Promise<TicketEntity> {
     const ticket = await this.repository.create(this.idManager.generate());
-    // TODO WS
+    this.onTicketNumberChanged();
 
     return ticket;
   }
@@ -55,7 +57,7 @@ export class TicketService {
     const ticket = await this.repository.drawNext(desk);
     if (!ticket) return { ok: false, msg: 'No hay tickets pendientes' };
 
-    // TODO WS
+    this.notifier.emit('ticket:drawn', { ticket, desk });
 
     return { ok: true, ticket };
   }
@@ -68,5 +70,10 @@ export class TicketService {
     if (!ticket) throw CustomError.notFound('Ticket not found');
 
     return { ok: true };
+  }
+
+  private async onTicketNumberChanged() {
+    const count = (await this.repository.getPending()).length;
+    this.notifier.emit('on-ticket-number-changed', count);
   }
 }

@@ -18,7 +18,9 @@ export class WssServer {
     server.once('listening', () => {
       const address = server.address();
       const port = typeof address === 'object' && address ? address.port : '';
-      console.log(`WebSocket server listening on ws://localhost:${port}${path ?? ''}`);
+      console.log(
+        `WebSocket server listening on ws://localhost:${port}${path ?? ''}`,
+      );
     });
   }
 
@@ -37,7 +39,18 @@ export class WssServer {
     this.wss.on('connection', (ws: WebSocket) => {
       console.log('Client connected');
       ws.on('close', () => console.log('Client disconnected'));
-      ws.on('error', (error) => console.error('WebSocket client error:', error));
+      ws.on('error', (error) =>
+        console.error('WebSocket client error:', error),
+      );
+    });
+  }
+
+  public broadcast(event: string, payload?: unknown) {
+    const message = JSON.stringify({ event, payload });
+    this.wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
     });
   }
 }
