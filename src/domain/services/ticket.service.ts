@@ -53,13 +53,24 @@ export class TicketService {
     return ticket;
   }
 
-  public async drawTicket(desk: string) {
-    const ticket = await this.repository.drawNext(desk);
-    if (!ticket) return { ok: false, msg: 'No hay tickets pendientes' };
+  public async workingByDesk(desk: string): Promise<TicketEntity | null> {
+    return await this.repository.getCurrentByDesk(desk);
+  }
 
-    this.notifier.emit('ticket:drawn', { ticket, desk });
+  public async drawTicket(desk: string): Promise<TicketEntity | null> {
+    const ticket =
+      (await this.repository.getCurrentByDesk(desk)) ||
+      (await this.repository.drawNext(desk));
 
-    return { ok: true, ticket };
+    // this.notifier.emit('ticket:drawn', { ticket, desk });
+
+    return ticket;
+  }
+
+  public async getCurrentTicketByDesk(
+    desk: string,
+  ): Promise<TicketEntity | null> {
+    return await this.repository.getCurrentByDesk(desk);
   }
 
   public async onFinishedTicket(id: string) {

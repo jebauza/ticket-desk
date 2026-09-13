@@ -1,6 +1,14 @@
 export class HttpClient {
-  static async get(url, headers = {}) {
-    return HttpClient.#request(url, { method: 'GET', headers });
+  static async get(url, params = {}, headers = {}) {
+    const fullUrl = new URL(url, window.location.origin);
+
+    for (const [key, value] of Object.entries(params)) {
+      if (!fullUrl.searchParams.has(key)) {
+        fullUrl.searchParams.set(key, value);
+      }
+    }
+
+    return HttpClient.#request(fullUrl.toString(), { method: 'GET', headers });
   }
 
   static async post(url, body, headers = {}) {
@@ -13,12 +21,16 @@ export class HttpClient {
 
   static async #request(url, options) {
     const res = await fetch(url, options);
-    const payload = await res.json().catch(() => null);
+    const body = await res.json().catch(() => null);
 
     if (!res.ok) {
-      throw new Error(payload?.error ?? `Request failed (${res.status})`);
+      throw new Error(body?.error ?? `Request failed (${res.status})`);
     }
 
-    return payload?.data;
+    return {
+      status: res.status,
+      headers: Object.fromEntries(res.headers),
+      body
+    };
   }
 }

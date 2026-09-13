@@ -7,6 +7,7 @@ export abstract class TicketRepository {
   abstract getWorkingOn(limit: number): Promise<TicketEntity[]>;
   abstract create(id: string): Promise<TicketEntity>;
   abstract drawNext(desk: string): Promise<TicketEntity | null>;
+  abstract getCurrentByDesk(desk: string): Promise<TicketEntity | null>;
   abstract markAsDone(id: string): Promise<TicketEntity | null>;
   abstract countAll(): Promise<number>;
   abstract seed(tickets: TicketEntity[]): Promise<void>;

@@ -87,6 +87,15 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return doc ? TicketMongoMapper.fromDocument(doc) : null;
   }
 
+  async getCurrentByDesk(desk: string): Promise<TicketEntity | null> {
+    const doc = await this.collection.findOne(
+      { handleAtDesk: desk, done: false },
+      { sort: { handleAt: -1 } },
+    );
+
+    return doc ? TicketMongoMapper.fromDocument(doc) : null;
+  }
+
   async markAsDone(id: string): Promise<TicketEntity | null> {
     const doc = await this.collection.findOneAndUpdate(
       { _id: id },

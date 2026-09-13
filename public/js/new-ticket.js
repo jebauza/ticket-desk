@@ -5,8 +5,8 @@ const createTiketBtn = document.getElementById('btn-new-ticket');
 
 async function getLastTicket() {
   try {
-    const ticket = await HttpClient.get('/api/tickets/last');
-    currentTicketLbl.innerText = ticket.number;
+    const { body } = await HttpClient.get('/api/tickets/last');
+    currentTicketLbl.innerText = body.data.number;
   } catch (err) {
     currentTicketLbl.innerText = '—';
     console.error('No se pudo obtener el último ticket:', err);

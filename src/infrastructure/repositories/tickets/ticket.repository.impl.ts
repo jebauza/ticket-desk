@@ -65,6 +65,14 @@ export class TicketRepositoryImpl extends TicketRepository {
     }
   }
 
+  async getCurrentByDesk(desk: string): Promise<TicketEntity | null> {
+    try {
+      return await this.datasource.getCurrentByDesk(desk);
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   async markAsDone(id: string): Promise<TicketEntity | null> {
     try {
       const ticket = await this.datasource.markAsDone(id);

@@ -5,6 +5,7 @@ import { TicketDatasourceImpl } from '../../../../infrastructure/data/postgres/t
 import { UuidAdapter } from '../../../../infrastructure/adapters/uuid.adapter';
 import { TicketController } from './controller';
 import { WssNotifier } from '../../../../infrastructure/websocket/wss.notifier';
+import { writeRateLimiterMiddleware } from '../middlewares/rate-limit.middleware';
 
 export class TicketRoutes {
   static get routes(): Router {
@@ -20,15 +21,16 @@ export class TicketRoutes {
     const controller = new TicketController(service);
 
     router.get('/', controller.getTickets);
+    router.post('/', writeRateLimiterMiddleware, controller.createTicket);
+
     router.get('/last', controller.getLastTicket);
     router.get('/pending', controller.pendingTickets);
-
-    router.post('/', controller.createTicket);
-
-    router.get('/draw/:desk', controller.drawTicket);
-    router.put('/done/:ticketId', controller.ticketFinished);
+    router.get('/working-by-desk', controller.workingByDesk);
 
     router.get('/working-on', controller.workingOn);
+
+    router.put('/done/:ticketId', writeRateLimiterMiddleware, controller.ticketFinished);
+    router.get('/draw/:desk', writeRateLimiterMiddleware, controller.drawTicket);
 
     return router;
   }

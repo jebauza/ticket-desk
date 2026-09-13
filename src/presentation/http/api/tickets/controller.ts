@@ -60,6 +60,27 @@ export class TicketController {
     }
   };
 
+  public workingByDesk = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    const { desk } = req.query;
+    if (typeof desk !== 'string') {
+      res.status(400).json({ error: 'desk param is required' });
+      return;
+    }
+
+    try {
+      const ticket = await this.service.workingByDesk(desk);
+      res.json(
+        ApiResponse.success(ticket ? TicketPresenter.fromEntity(ticket) : null),
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public drawTicket = async (
     req: Request,
     res: Response,
@@ -72,11 +93,9 @@ export class TicketController {
     }
 
     try {
-      const result = await this.service.drawTicket(desk);
+      const ticket = await this.service.drawTicket(desk);
       res.json(
-        'ticket' in result
-          ? { ok: true, ticket: TicketPresenter.fromEntity(result.ticket) }
-          : result,
+        ApiResponse.success(ticket ? TicketPresenter.fromEntity(ticket) : null),
       );
     } catch (error) {
       next(error);

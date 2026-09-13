@@ -70,6 +70,18 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return rows[0] ? TicketMapper.fromRow(rows[0]) : null;
   }
 
+  async getCurrentByDesk(desk: string): Promise<TicketEntity | null> {
+    const { rows } = await this.pool.query(
+      `SELECT * FROM tickets
+       WHERE handle_at_desk = $1 AND done = false
+       ORDER BY handle_at DESC
+       LIMIT 1`,
+      [desk],
+    );
+
+    return rows[0] ? TicketMapper.fromRow(rows[0]) : null;
+  }
+
   async markAsDone(id: string): Promise<TicketEntity | null> {
     const { rows } = await this.pool.query(
       'UPDATE tickets SET done = true WHERE id = $1 RETURNING *',

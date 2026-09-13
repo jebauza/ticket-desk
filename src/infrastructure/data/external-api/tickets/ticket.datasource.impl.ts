@@ -43,6 +43,13 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return data ? TicketApiMapper.fromResponse(data) : null;
   }
 
+  async getCurrentByDesk(desk: string): Promise<TicketEntity | null> {
+    const { data } = await this.client.get<TicketApiResponse | null>(
+      `/tickets/desk/${desk}/current`,
+    );
+    return data ? TicketApiMapper.fromResponse(data) : null;
+  }
+
   async markAsDone(id: string): Promise<TicketEntity | null> {
     const { data } = await this.client.put<TicketApiResponse | null>(`/tickets/${id}/done`);
     return data ? TicketApiMapper.fromResponse(data) : null;

@@ -1,6 +1,9 @@
 import express, { Router } from 'express';
+import helmet from 'helmet';
 import path from 'path';
-import { errorHandler } from './api/middlewares/error-handler.middleware';
+import { errorHandlerMiddleware } from './api/middlewares/error-handler.middleware';
+import { apiRateLimiterMiddleware } from './api/middlewares/rate-limit.middleware';
+import { sqlInjectionMiddleware } from './api/middlewares/sql-injection.middleware';
 
 interface Options {
   port: number;
@@ -26,8 +29,11 @@ export class Server {
 
   private configure() {
     //* Middlewares
+    this.app.use(helmet());
+    this.app.use(apiRateLimiterMiddleware);
     this.app.use(express.json()); // raw
     this.app.use(express.urlencoded({ extended: true })); // x-www-form-urlencoded
+    this.app.use(sqlInjectionMiddleware);
 
     //* Public Folder
     this.app.use(express.static(this.publicPath));
@@ -46,7 +52,7 @@ export class Server {
     });
 
     //* Error handler (siempre al final)
-    this.app.use(errorHandler);
+    this.app.use(errorHandlerMiddleware);
   }
 
   public setRoutes(router: Router) {
