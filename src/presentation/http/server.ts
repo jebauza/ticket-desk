@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 import path from 'path';
-import { errorHandler } from './middlewares/error-handler.middleware';
+import { errorHandler } from './api/middlewares/error-handler.middleware';
 
 interface Options {
   port: number;
@@ -54,6 +54,10 @@ export class Server {
     this.registerFallbacks();
   }
 
+  // start()/close() no se usan: app.ts crea el http.Server con createServer(server.app)
+  // y lo escucha directamente, porque WssServer necesita adjuntarse a ese mismo
+  // http.Server para manejar el upgrade de WebSocket. Sin WSS, este sería el
+  // método válido para levantar y cerrar el servidor.
   async start() {
     this.serverListener = this.app.listen(this.port, () => {
       console.log(`Server running on port ${this.port}`);

@@ -14,6 +14,12 @@ export class WssServer {
     const { server, path } = options;
     this.wss = new WebSocketServer({ server, path });
     this.start();
+
+    server.once('listening', () => {
+      const address = server.address();
+      const port = typeof address === 'object' && address ? address.port : '';
+      console.log(`WebSocket server listening on ws://localhost:${port}${path ?? ''}`);
+    });
   }
 
   static get instance(): WssServer {
@@ -31,6 +37,7 @@ export class WssServer {
     this.wss.on('connection', (ws: WebSocket) => {
       console.log('Client connected');
       ws.on('close', () => console.log('Client disconnected'));
+      ws.on('error', (error) => console.error('WebSocket client error:', error));
     });
   }
 }

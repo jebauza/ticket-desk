@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { TicketRoutes } from './tickets/routes';
 
-export class AppRoutes {
+export class ApiRoutes {
   static get routes(): Router {
     const router = Router();
 

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { TicketService } from '../../../domain/services/ticket.service';
+import { TicketService } from '../../../../domain/services/ticket.service';
 import { TicketPresenter } from './presenters/ticket.presenter';
 import { ApiResponse } from '../shared/api-response';
 

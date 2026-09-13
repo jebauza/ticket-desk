@@ -1,4 +1,4 @@
-import { TicketEntity } from '../../../../domain/entities/ticket.entity';
+import { TicketEntity } from '../../../../../domain/entities/ticket.entity';
 
 interface TicketPresenterDto {
   id: string;
