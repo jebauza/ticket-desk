@@ -10,8 +10,16 @@ export class CustomError extends Error {
     return new CustomError(400, message);
   }
 
+  static unauthorized(message: string) {
+    return new CustomError(401, message);
+  }
+
   static notFound(message: string) {
     return new CustomError(404, message);
+  }
+
+  static conflict(message: string) {
+    return new CustomError(409, message);
   }
 
   static internalServer(message: string) {

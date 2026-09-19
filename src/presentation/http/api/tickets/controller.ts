@@ -13,7 +13,7 @@ export class TicketController {
   ) => {
     try {
       const tickets = await this.service.getTickets();
-      res.json(TicketPresenter.fromEntities(tickets));
+      res.json(ApiResponse.success(TicketPresenter.fromEntities(tickets)));
     } catch (error) {
       next(error);
     }
@@ -67,7 +67,7 @@ export class TicketController {
   ) => {
     try {
       const ticket = await this.service.createTicket();
-      res.status(201).json(TicketPresenter.fromEntity(ticket));
+      res.status(201).json(ApiResponse.success(TicketPresenter.fromEntity(ticket)));
     } catch (error) {
       next(error);
     }
@@ -107,7 +107,8 @@ export class TicketController {
       return res.status(400).json({ error: 'desk field is required' });
 
     try {
-      res.json(await this.service.onFinishedTicket(ticketId, desk));
+      const ticket = await this.service.onFinishedTicket(ticketId, desk);
+      res.json(ApiResponse.success(TicketPresenter.fromEntity(ticket)));
     } catch (error) {
       next(error);
     }
@@ -174,7 +175,7 @@ export class TicketController {
   ) => {
     try {
       const tickets = await this.service.getLast4WorkingOnTickets();
-      res.json(TicketPresenter.fromEntities(tickets));
+      res.json(ApiResponse.success(TicketPresenter.fromEntities(tickets)));
     } catch (error) {
       next(error);
     }

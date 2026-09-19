@@ -1,4 +1,4 @@
-export class CreateTicketDto {
+export class LoginUserDto {
   private constructor(
     public email: string,
     public password: string,
@@ -6,15 +6,12 @@ export class CreateTicketDto {
 
   static create(object: {
     [key: string]: any;
-  }): [string | undefined, CreateTicketDto | undefined] {
+  }): [string | undefined, LoginUserDto | undefined] {
     const { email, password } = object;
 
     if (!email) return ['Missing email', undefined];
-
     if (!password) return ['Missing password', undefined];
-    if (password.length < 6)
-      return ['Password must be at least 6 characters', undefined];
 
-    return [undefined, new CreateTicketDto(email, password)];
+    return [undefined, new LoginUserDto(email, password)];
   }
 }
