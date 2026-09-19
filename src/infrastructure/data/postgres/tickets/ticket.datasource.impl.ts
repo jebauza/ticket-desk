@@ -91,6 +91,37 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return rows[0] ? TicketMapper.fromRow(rows[0]) : null;
   }
 
+  async update(id: string, data: TicketEntity): Promise<TicketEntity | null> {
+    const { rows } = await this.pool.query(
+      `UPDATE tickets SET
+         number = $2,
+         create_at = $3,
+         handle_at_desk = $4,
+         handle_at = $5,
+         done = $6
+       WHERE id = $1
+       RETURNING *`,
+      [
+        id,
+        data.number,
+        data.createAt,
+        data.handleAtDesk,
+        data.handleAt,
+        data.done,
+      ],
+    );
+
+    return rows[0] ? TicketMapper.fromRow(rows[0]) : null;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const result = await this.pool.query('DELETE FROM tickets WHERE id = $1', [
+      id,
+    ]);
+
+    return (result.rowCount ?? 0) > 0;
+  }
+
   async markAsDone(id: string): Promise<TicketEntity | null> {
     const { rows } = await this.pool.query(
       'UPDATE tickets SET done = true WHERE id = $1 RETURNING *',

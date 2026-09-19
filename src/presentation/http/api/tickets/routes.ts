@@ -27,17 +27,32 @@ export class TicketRoutes {
     router.get('/pending', controller.pendingTickets);
     router.get('/working-on', controller.workingOn);
 
+    router.get('/desk/current', controller.currentByDesk);
+    router.post(
+      '/desk/next-ticket',
+      writeRateLimiterMiddleware,
+      controller.nextTicket,
+    );
+
     router.put(
       '/done/:ticketId',
       writeRateLimiterMiddleware,
       controller.ticketFinished,
     );
 
-    router.get('/desk/current', controller.currentByDesk);
-    router.post(
-      '/desk/next-ticket',
+    // Rutas genéricas por :ticketId al final: deben ir después de cualquier
+    // ruta con segmento fijo (/last, /desk/*, /done/*) para que Express no
+    // las intercepte como si fueran un id.
+    router.get('/:ticketId', controller.getTicket);
+    router.put(
+      '/:ticketId',
       writeRateLimiterMiddleware,
-      controller.nextTicket,
+      controller.updateTicket,
+    );
+    router.delete(
+      '/:ticketId',
+      writeRateLimiterMiddleware,
+      controller.deleteTicket,
     );
 
     return router;

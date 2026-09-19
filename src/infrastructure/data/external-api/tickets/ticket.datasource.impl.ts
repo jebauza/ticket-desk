@@ -11,6 +11,13 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return ExternalApiClient.instance;
   }
 
+  async findOne(id: string): Promise<TicketEntity | null> {
+    const { data } = await this.client.get<TicketApiResponse | null>(
+      `/tickets/${id}`,
+    );
+    return data ? TicketApiMapper.fromResponse(data) : null;
+  }
+
   async getAll(): Promise<TicketEntity[]> {
     const { data } = await this.client.get<TicketApiResponse[]>('/tickets');
     return data.map(TicketApiMapper.fromResponse);
@@ -56,6 +63,19 @@ export class TicketDatasourceImpl extends TicketDatasource {
       `/tickets/desk/${desk}/current`,
     );
     return data ? TicketApiMapper.fromResponse(data) : null;
+  }
+
+  async update(id: string, data: TicketEntity): Promise<TicketEntity | null> {
+    const { data: response } = await this.client.put<TicketApiResponse | null>(
+      `/tickets/${id}`,
+      data,
+    );
+    return response ? TicketApiMapper.fromResponse(response) : null;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const { status } = await this.client.delete<void>(`/tickets/${id}`);
+    return status === 200 || status === 204;
   }
 
   async markAsDone(id: string): Promise<TicketEntity | null> {

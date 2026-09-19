@@ -4,6 +4,7 @@ import { TicketDatasourceImpl } from '../../infrastructure/data/postgres/tickets
 import { TicketRepositoryImpl } from '../../infrastructure/repositories/tickets/ticket.repository.impl';
 import { TicketService } from '../../domain/services/ticket.service';
 import { UuidAdapter } from '../../infrastructure/adapters/uuid.adapter';
+import { WssNotifier } from '../../infrastructure/websocket/wss.notifier';
 
 (async () => {
   await main();
@@ -20,7 +21,7 @@ async function main() {
 
   const datasource = new TicketDatasourceImpl();
   const repository = new TicketRepositoryImpl(datasource);
-  const service = new TicketService(repository, UuidAdapter);
+  const service = new TicketService(repository, UuidAdapter, new WssNotifier());
 
   await service.seedTickets();
 

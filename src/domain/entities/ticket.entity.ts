@@ -1,4 +1,4 @@
-interface TicketCreateProps {
+export interface TicketCreateProps {
   id: string;
   number: number;
   createAt?: Date | string;
@@ -6,6 +6,8 @@ interface TicketCreateProps {
   handleAt?: Date | string | null;
   done?: boolean;
 }
+
+export type TicketUpdateProps = Partial<Omit<TicketCreateProps, 'id'>>;
 
 export class TicketEntity {
   private constructor(

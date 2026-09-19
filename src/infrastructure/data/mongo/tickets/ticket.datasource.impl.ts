@@ -96,6 +96,26 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return doc ? TicketMongoMapper.fromDocument(doc) : null;
   }
 
+  async update(id: string, data: TicketEntity): Promise<TicketEntity | null> {
+    const doc = await this.collection.findOneAndUpdate(
+      { _id: id },
+      { $set: TicketMongoMapper.toUpdateDocument(data) },
+      { returnDocument: 'after' },
+    );
+
+    return doc ? TicketMongoMapper.fromDocument(doc) : null;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const result = await this.collection.deleteOne({ _id: id });
+    return result.deletedCount === 1;
+  }
+
+  async findOne(id: string): Promise<TicketEntity | null> {
+    const doc = await this.collection.findOne({ _id: id });
+    return doc ? TicketMongoMapper.fromDocument(doc) : null;
+  }
+
   async markAsDone(id: string): Promise<TicketEntity | null> {
     const doc = await this.collection.findOneAndUpdate(
       { _id: id },

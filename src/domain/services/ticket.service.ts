@@ -1,4 +1,4 @@
-import { TicketEntity } from '../entities/ticket.entity';
+import { TicketEntity, TicketUpdateProps } from '../entities/ticket.entity';
 import { CustomError } from '../errors/custom.error';
 import { IdManager } from '../interfaces/id-manager';
 import { RealtimeNotifier } from '../interfaces/realtime-notifier';
@@ -84,10 +84,55 @@ export class TicketService {
     if (!this.idManager.isValid(id))
       throw CustomError.badRequest('Ticket id is not a valid uuid');
 
-    ticket = await this.findById(id);
+    const ticket = await this.findById(id);
+    if (ticket.handleAtDesk != desk)
+      throw CustomError.badRequest(
+        `Ticket was handled by another desk ${ticket.handleAtDesk}`,
+      );
+    ticket.done = true;
 
-    const ticket = await this.repository.markAsDone(id);
-    if (!ticket) throw CustomError.notFound('Ticket not found');
+    const updated = await this.repository.update(ticket.id, ticket);
+    if (!updated) throw CustomError.notFound('Ticket not found');
+
+    return updated;
+  }
+
+  public async updateTicket(
+    id: string,
+    changes: TicketUpdateProps,
+  ): Promise<TicketEntity> {
+    if (!this.idManager.isValid(id))
+      throw CustomError.badRequest('Ticket id is not a valid uuid');
+
+    const current = await this.findById(id);
+
+    // Merge del patch parcial contra la entidad actual: hacia abajo (repo/datasource)
+    // siempre viaja una TicketEntity completa y válida, nunca un objeto parcial.
+    const updated = TicketEntity.create({
+      id: current.id,
+      number: changes.number ?? current.number,
+      createAt: changes.createAt ?? current.createAt,
+      handleAtDesk:
+        changes.handleAtDesk !== undefined
+          ? changes.handleAtDesk
+          : current.handleAtDesk,
+      handleAt:
+        changes.handleAt !== undefined ? changes.handleAt : current.handleAt,
+      done: changes.done ?? current.done,
+    });
+
+    const ticket = await this.repository.update(id, updated);
+    if (!ticket) throw CustomError.notFound(`Id (${id}) not found`);
+
+    return ticket;
+  }
+
+  public async deleteTicket(id: string): Promise<{ ok: true }> {
+    if (!this.idManager.isValid(id))
+      throw CustomError.badRequest('Ticket id is not a valid uuid');
+
+    const deleted = await this.repository.delete(id);
+    if (!deleted) throw CustomError.notFound(`Id (${id}) not found`);
 
     return { ok: true };
   }

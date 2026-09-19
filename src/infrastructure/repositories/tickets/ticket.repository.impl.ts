@@ -63,6 +63,26 @@ export class TicketRepositoryImpl extends TicketRepository {
     }
   }
 
+  async update(id: string, data: TicketEntity): Promise<TicketEntity | null> {
+    try {
+      const ticket = await this.datasource.update(id, data);
+      if (ticket) this.invalidateCache();
+      return ticket;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async delete(id: string): Promise<boolean> {
+    try {
+      const deleted = await this.datasource.delete(id);
+      if (deleted) this.invalidateCache();
+      return deleted;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   async nextPending(desk: string): Promise<TicketEntity | null> {
     try {
       const ticket = await this.datasource.nextPending(desk);

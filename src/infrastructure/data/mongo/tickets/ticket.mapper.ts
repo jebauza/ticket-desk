@@ -20,4 +20,14 @@ export class TicketMongoMapper {
       done: doc.done,
     });
   }
+
+  static toUpdateDocument(entity: TicketEntity): Omit<TicketDocument, '_id'> {
+    return {
+      number: entity.number,
+      createAt: entity.createAt,
+      handleAtDesk: entity.handleAtDesk,
+      handleAt: entity.handleAt,
+      done: entity.done,
+    };
+  }
 }

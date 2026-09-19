@@ -59,7 +59,9 @@ export class HttpClientAdapter {
     response.headers.forEach((value, key) => {
       headers[key] = value;
     });
-    const data = (await response.json()) as T;
+
+    const raw = await response.text();
+    const data = (raw ? JSON.parse(raw) : null) as T;
 
     return { status: response.status, headers, data };
   }
