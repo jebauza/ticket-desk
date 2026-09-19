@@ -28,6 +28,9 @@ export class Server {
   }
 
   private configure() {
+    // fuerce al cliente a revalidar contra caché en vez de traer datos frescos.
+    this.app.set('etag', false);
+
     //* Middlewares
     this.app.use(helmet());
     this.app.use(apiRateLimiterMiddleware);

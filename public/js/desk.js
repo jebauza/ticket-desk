@@ -4,27 +4,30 @@ import { SocketClient } from "./adapters/socket-client.js";
 const lblPending = document.getElementById('lbl-pending');
 const deskHeader = document.querySelector('h1');
 const noMoreAlert = document.querySelector('.alert');
-const btnDraw = document.querySelector('#btn-draw');
+const btnNext = document.querySelector('#btn-next');
 const btnDone = document.querySelector('#btn-done');
+const lblCurrentTicket = document.querySelector('small');
 
 const searchParams = new URLSearchParams(window.location.search);
 if (!searchParams.has('desk_name')) {
   window.location.href = 'index.html';
   throw new Error('El parámetro escritorio es obligatorio');
 }
-deskHeader.innerHTML = searchParams.get('desk_name');
+const deskName = searchParams.get('desk_name');
+deskHeader.innerHTML = deskName;
 let workingTicket = null;
 
 const socketClient = new SocketClient('ws://localhost:3000/ws');
+socketClient.connect();
 socketClient.on('message', (raw) => {
   const { event, payload } = JSON.parse(raw);
   if (event !== 'on-ticket-number-changed') return;
   checkTicketCount(payload);
 });
 
-async function loadInitialCount() {
-  socketClient.connect();
-  getTicket();
+async function loadInitial() {
+  workingTicket = (await getCurrentTicket()) || (await getNextTicket());
+  lblCurrentTicket.innerHTML = workingTicket?.number || 'NINGUNO';
 
   try {
     const { body } = await HttpClient.get('/api/tickets/pending');
@@ -44,16 +47,26 @@ function checkTicketCount(currentCount = 0) {
   }
 }
 
-async function getTicket() {
+async function getCurrentTicket() {
   try {
-    const { body } = await HttpClient.get(`/api/tickets/working-by-desk`, {desk: searchParams.get('desk_name')});
+    const { body } = await HttpClient.get(`/api/tickets/desk/current`, {desk: deskName});
+    return Object.keys(body.data).length !== 0 ? body.data : null;
   } catch (error) {
-    
+    console.log(error);
+    return null;
   }
-  
 }
 
-// Init
-loadInitialCount();
+async function getNextTicket() {
+  try {
+    const { body } = await HttpClient.post(`/api/tickets/desk/next-ticket`, {desk: deskName});
+    return Object.keys(body.data).length !== 0 ? body.data : null;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
 
-console.log('Escritorio HTMLf');
+
+// Init
+loadInitial();

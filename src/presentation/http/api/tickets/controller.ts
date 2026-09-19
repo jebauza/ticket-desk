@@ -60,42 +60,20 @@ export class TicketController {
     }
   };
 
-  public workingByDesk = async (
+  public currentByDesk = async (
     req: Request,
     res: Response,
     next: NextFunction,
   ) => {
     const { desk } = req.query;
     if (typeof desk !== 'string') {
-      res.status(400).json({ error: 'desk param is required' });
-      return;
+      return res.status(400).json({ error: 'desk param is required' });
     }
 
     try {
-      const ticket = await this.service.workingByDesk(desk);
+      const ticket = await this.service.currentByDesk(desk);
       res.json(
-        ApiResponse.success(ticket ? TicketPresenter.fromEntity(ticket) : null),
-      );
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public drawTicket = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    const { desk } = req.params;
-    if (typeof desk !== 'string') {
-      res.status(400).json({ error: 'desk param is required' });
-      return;
-    }
-
-    try {
-      const ticket = await this.service.drawTicket(desk);
-      res.json(
-        ApiResponse.success(ticket ? TicketPresenter.fromEntity(ticket) : null),
+        ApiResponse.success(ticket ? TicketPresenter.fromEntity(ticket) : {}),
       );
     } catch (error) {
       next(error);
@@ -108,13 +86,36 @@ export class TicketController {
     next: NextFunction,
   ) => {
     const { ticketId } = req.params;
-    if (typeof ticketId !== 'string') {
-      res.status(400).json({ error: 'ticketId param is required' });
+    if (typeof ticketId !== 'string')
+      return res.status(400).json({ error: 'ticketId param is required' });
+
+    const { desk } = req.body;
+    if (typeof desk !== 'string')
+      return res.status(400).json({ error: 'desk field is required' });
+
+    try {
+      res.json(await this.service.onFinishedTicket(ticketId, desk));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public nextTicket = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    const { desk } = req.body;
+    if (typeof desk !== 'string') {
+      res.status(400).json({ error: 'desk field is required' });
       return;
     }
 
     try {
-      res.json(await this.service.onFinishedTicket(ticketId));
+      const ticket = await this.service.nextTicket(desk);
+      res.json(
+        ApiResponse.success(ticket ? TicketPresenter.fromEntity(ticket) : {}),
+      );
     } catch (error) {
       next(error);
     }

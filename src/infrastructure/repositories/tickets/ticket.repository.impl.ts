@@ -10,6 +10,14 @@ export class TicketRepositoryImpl extends TicketRepository {
     super();
   }
 
+  async findOne(id: string): Promise<TicketEntity | null> {
+    try {
+      return await this.datasource.findOne(id);
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
   async getAll(): Promise<TicketEntity[]> {
     if (this.cache) return this.cache;
 
@@ -55,9 +63,9 @@ export class TicketRepositoryImpl extends TicketRepository {
     }
   }
 
-  async drawNext(desk: string): Promise<TicketEntity | null> {
+  async nextPending(desk: string): Promise<TicketEntity | null> {
     try {
-      const ticket = await this.datasource.drawNext(desk);
+      const ticket = await this.datasource.nextPending(desk);
       if (ticket) this.invalidateCache();
       return ticket;
     } catch (error) {

@@ -77,7 +77,7 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return TicketMongoMapper.fromDocument(doc);
   }
 
-  async drawNext(desk: string): Promise<TicketEntity | null> {
+  async nextPending(desk: string): Promise<TicketEntity | null> {
     const doc = await this.collection.findOneAndUpdate(
       { handleAtDesk: null },
       { $set: { handleAtDesk: desk, handleAt: new Date() } },

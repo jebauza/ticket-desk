@@ -8,6 +8,15 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return PostgresDatabase.instance.pool;
   }
 
+  async findOne(id: string): Promise<TicketEntity | null> {
+    const { rows } = await this.pool.query(
+      'SELECT * FROM tickets WHERE id = $1 LIMIT 1',
+      [id],
+    );
+
+    return rows[0] ? TicketMapper.fromRow(rows[0]) : null;
+  }
+
   async getAll(): Promise<TicketEntity[]> {
     const { rows } = await this.pool.query(
       'SELECT * FROM tickets ORDER BY number ASC',
@@ -52,7 +61,7 @@ export class TicketDatasourceImpl extends TicketDatasource {
     return TicketMapper.fromRow(rows[0]);
   }
 
-  async drawNext(desk: string): Promise<TicketEntity | null> {
+  async nextPending(desk: string): Promise<TicketEntity | null> {
     const { rows } = await this.pool.query(
       `UPDATE tickets
        SET handle_at_desk = $1, handle_at = NOW()

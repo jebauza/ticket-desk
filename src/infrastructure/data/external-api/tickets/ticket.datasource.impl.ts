@@ -17,12 +17,15 @@ export class TicketDatasourceImpl extends TicketDatasource {
   }
 
   async getPending(): Promise<TicketEntity[]> {
-    const { data } = await this.client.get<TicketApiResponse[]>('/tickets/pending');
+    const { data } =
+      await this.client.get<TicketApiResponse[]>('/tickets/pending');
     return data.map(TicketApiMapper.fromResponse);
   }
 
   async getLast(): Promise<TicketEntity | null> {
-    const { data } = await this.client.get<TicketApiResponse | null>('/tickets/last');
+    const { data } = await this.client.get<TicketApiResponse | null>(
+      '/tickets/last',
+    );
     return data ? TicketApiMapper.fromResponse(data) : null;
   }
 
@@ -34,12 +37,17 @@ export class TicketDatasourceImpl extends TicketDatasource {
   }
 
   async create(id: string): Promise<TicketEntity> {
-    const { data } = await this.client.post<TicketApiResponse>('/tickets', { id });
+    const { data } = await this.client.post<TicketApiResponse>('/tickets', {
+      id,
+    });
     return TicketApiMapper.fromResponse(data);
   }
 
-  async drawNext(desk: string): Promise<TicketEntity | null> {
-    const { data } = await this.client.post<TicketApiResponse | null>('/tickets/draw', { desk });
+  async nextPending(desk: string): Promise<TicketEntity | null> {
+    const { data } = await this.client.post<TicketApiResponse | null>(
+      '/tickets/draw',
+      { desk },
+    );
     return data ? TicketApiMapper.fromResponse(data) : null;
   }
 
@@ -51,7 +59,9 @@ export class TicketDatasourceImpl extends TicketDatasource {
   }
 
   async markAsDone(id: string): Promise<TicketEntity | null> {
-    const { data } = await this.client.put<TicketApiResponse | null>(`/tickets/${id}/done`);
+    const { data } = await this.client.put<TicketApiResponse | null>(
+      `/tickets/${id}/done`,
+    );
     return data ? TicketApiMapper.fromResponse(data) : null;
   }
 

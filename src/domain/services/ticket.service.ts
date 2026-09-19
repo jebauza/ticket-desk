@@ -27,6 +27,13 @@ export class TicketService {
     await this.repository.seed(tickets);
   }
 
+  public async findById(id: string): Promise<TicketEntity> {
+    const ticket = await this.repository.findOne(id);
+    if (!ticket) throw CustomError.notFound(`Id (${id}) not found`);
+
+    return ticket;
+  }
+
   public getTickets(): Promise<TicketEntity[]> {
     return this.repository.getAll();
   }
@@ -53,16 +60,16 @@ export class TicketService {
     return ticket;
   }
 
-  public async workingByDesk(desk: string): Promise<TicketEntity | null> {
+  public async currentByDesk(desk: string): Promise<TicketEntity | null> {
     return await this.repository.getCurrentByDesk(desk);
   }
 
-  public async drawTicket(desk: string): Promise<TicketEntity | null> {
+  public async nextTicket(desk: string): Promise<TicketEntity | null> {
     const ticket =
       (await this.repository.getCurrentByDesk(desk)) ||
-      (await this.repository.drawNext(desk));
+      (await this.repository.nextPending(desk));
 
-    // this.notifier.emit('ticket:drawn', { ticket, desk });
+    this.onTicketNumberChanged();
 
     return ticket;
   }
@@ -73,9 +80,11 @@ export class TicketService {
     return await this.repository.getCurrentByDesk(desk);
   }
 
-  public async onFinishedTicket(id: string) {
+  public async onFinishedTicket(id: string, desk: string) {
     if (!this.idManager.isValid(id))
-      throw CustomError.badRequest('Id is not a valid uuid');
+      throw CustomError.badRequest('Ticket id is not a valid uuid');
+
+    ticket = await this.findById(id);
 
     const ticket = await this.repository.markAsDone(id);
     if (!ticket) throw CustomError.notFound('Ticket not found');

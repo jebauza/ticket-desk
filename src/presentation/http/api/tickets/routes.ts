@@ -25,12 +25,20 @@ export class TicketRoutes {
 
     router.get('/last', controller.getLastTicket);
     router.get('/pending', controller.pendingTickets);
-    router.get('/working-by-desk', controller.workingByDesk);
-
     router.get('/working-on', controller.workingOn);
 
-    router.put('/done/:ticketId', writeRateLimiterMiddleware, controller.ticketFinished);
-    router.get('/draw/:desk', writeRateLimiterMiddleware, controller.drawTicket);
+    router.put(
+      '/done/:ticketId',
+      writeRateLimiterMiddleware,
+      controller.ticketFinished,
+    );
+
+    router.get('/desk/current', controller.currentByDesk);
+    router.post(
+      '/desk/next-ticket',
+      writeRateLimiterMiddleware,
+      controller.nextTicket,
+    );
 
     return router;
   }
