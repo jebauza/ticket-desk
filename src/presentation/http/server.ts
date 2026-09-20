@@ -7,7 +7,6 @@ import { sqlInjectionMiddleware } from './api/middlewares/sql-injection.middlewa
 
 interface Options {
   port: number;
-  // routes: Router;
   public_path?: string;
 }
 
@@ -16,13 +15,11 @@ export class Server {
   private serverListener?: any;
   private readonly port: number;
   private readonly publicPath: string;
-  // private readonly routes: Router;
 
   constructor(options: Options) {
-    const { port, /* routes, */ public_path = 'public' } = options;
+    const { port, public_path = 'public' } = options;
     this.port = port;
     this.publicPath = public_path;
-    // this.routes = routes;
 
     this.configure();
   }
@@ -31,22 +28,23 @@ export class Server {
     // fuerce al cliente a revalidar contra caché en vez de traer datos frescos.
     this.app.set('etag', false);
 
-    //* Middlewares
+    // Detrás de un reverse proxy, sin esto req.ip es la IP del proxy para
+    // todas las peticiones: el rate limit se vuelve un cupo global compartido
+    // en vez de por cliente. Confía en un solo salto; súbelo si hay más.
+    this.app.set('trust proxy', 1);
+
     this.app.use(helmet());
     this.app.use(apiRateLimiterMiddleware);
-    this.app.use(express.json()); // raw
-    this.app.use(express.urlencoded({ extended: true })); // x-www-form-urlencoded
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
     this.app.use(sqlInjectionMiddleware);
 
-    //* Public Folder
     this.app.use(express.static(this.publicPath));
-
-    //* Routes
-    // this.app.use(this.routes);
   }
 
   private registerFallbacks() {
-    //* SPA /^\/(?!api).*/  <== Únicamente si no empieza con la palabra api
+    // Únicamente si la ruta no empieza por /api, para no interceptar la API
+    // con el fallback de SPA.
     this.app.get(/^\/(?!api).*/, (req, res) => {
       const indexPath = path.join(
         __dirname + `../../../../${this.publicPath}/index.html`,
@@ -54,7 +52,7 @@ export class Server {
       res.sendFile(indexPath);
     });
 
-    //* Error handler (siempre al final)
+    // Siempre al final: next(error) no llega aquí si se registra antes de las rutas.
     this.app.use(errorHandlerMiddleware);
   }
 

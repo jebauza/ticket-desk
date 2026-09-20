@@ -21,3 +21,9 @@ export const envs = {
   EXTERNAL_API_URL: get('EXTERNAL_API_URL').asString(),
   EXTERNAL_API_KEY: get('EXTERNAL_API_KEY').asString(),
 };
+
+// Un HS256 con seed corto es forzable por fuerza bruta. Falla en el arranque,
+// no en el primer login, y sin exponer el valor leído en el mensaje.
+if (envs.JWT_SEED.length < 32) {
+  throw new Error('JWT_SEED must be at least 32 characters long');
+}

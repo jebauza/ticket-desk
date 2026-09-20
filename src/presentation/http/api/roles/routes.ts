@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, RequestHandler } from 'express';
 import { RoleService } from '../../../../domain/services/role.service';
 import { RoleRepositoryImpl } from '../../../../infrastructure/repositories/roles/role.repository.impl';
 import { RoleDatasourceImpl } from '../../../../infrastructure/data/postgres/roles/role.datasource.impl';
@@ -11,19 +11,23 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 import { requireAdminMiddleware } from '../middlewares/require-admin.middleware';
 import { writeRateLimiterMiddleware } from '../middlewares/rate-limit.middleware';
 
+interface RoleRoutesDeps {
+  service?: RoleService;
+  requireAuth?: RequestHandler;
+}
+
 export class RoleRoutes {
-  static get routes(): Router {
+  static routes(deps: RoleRoutesDeps = {}): Router {
     const router = Router();
 
     const datasource = new RoleDatasourceImpl();
     const repository = new RoleRepositoryImpl(datasource);
-    const service = new RoleService(repository, UuidAdapter);
+    const service = deps.service ?? new RoleService(repository, UuidAdapter);
     const controller = new RoleController(service);
 
-    // authMiddleware necesita su propio UserRepository para verificar el
-    // token — mismo patrón de composition root que auth/routes.ts.
-    const userRepository = new UserRepositoryImpl(new UserDatasourceImpl());
-    const requireAuth = authMiddleware(userRepository, JwtAdapter);
+    const requireAuth =
+      deps.requireAuth ??
+      authMiddleware(new UserRepositoryImpl(new UserDatasourceImpl()), JwtAdapter);
     const requireAdmin = requireAdminMiddleware;
 
     router.get('/', requireAuth, controller.getRoles);

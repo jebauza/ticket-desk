@@ -64,8 +64,7 @@ export class RoleService {
     return { ok: true };
   }
 
-  // --- Asociación role_permissions: este servicio es el dueño de la escritura ---
-
+  // Este servicio es dueño de la escritura de role_permissions.
   public async getRolePermissions(roleId: string): Promise<PermissionEntity[]> {
     await this.findEntityById(roleId);
     return this.repository.getPermissions(roleId);

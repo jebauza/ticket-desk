@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { UserRepository } from '../../../../domain/repositories/user.repository';
 import { TokenManager } from '../../../../domain/interfaces/token-manager';
 import { UserEntity } from '../../../../domain/entities/user.entity';
+import { ApiResponse } from '../shared/api-response';
 
 interface TokenPayload {
   id: string;
@@ -28,7 +29,7 @@ export function authMiddleware(
   return async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.header('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      res.status(401).json({ error: 'No token provided' });
+      res.status(401).json(ApiResponse.error('No token provided'));
       return;
     }
 
@@ -37,13 +38,13 @@ export function authMiddleware(
     try {
       const payload = await tokenManager.verify<TokenPayload>(token);
       if (!payload) {
-        res.status(401).json({ error: 'Invalid token' });
+        res.status(401).json(ApiResponse.error('Invalid token'));
         return;
       }
 
       const user = await repository.findOne(payload.id);
       if (!user) {
-        res.status(401).json({ error: 'Invalid token' });
+        res.status(401).json(ApiResponse.error('Invalid token'));
         return;
       }
 

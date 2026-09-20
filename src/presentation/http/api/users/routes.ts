@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, RequestHandler } from 'express';
 import { UserService } from '../../../../domain/services/user.service';
 import { UserRepositoryImpl } from '../../../../infrastructure/repositories/users/user.repository.impl';
 import { UserDatasourceImpl } from '../../../../infrastructure/data/postgres/users/user.datasource.impl';
@@ -10,16 +10,21 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 import { requireAdminMiddleware } from '../middlewares/require-admin.middleware';
 import { writeRateLimiterMiddleware } from '../middlewares/rate-limit.middleware';
 
+interface UserRoutesDeps {
+  service?: UserService;
+  requireAuth?: RequestHandler;
+}
+
 export class UserRoutes {
-  static get routes(): Router {
+  static routes(deps: UserRoutesDeps = {}): Router {
     const router = Router();
 
     const datasource = new UserDatasourceImpl();
     const repository = new UserRepositoryImpl(datasource);
-    const service = new UserService(repository, UuidAdapter, BcryptAdapter);
+    const service = deps.service ?? new UserService(repository, UuidAdapter, BcryptAdapter);
     const controller = new UserController(service);
 
-    const requireAuth = authMiddleware(repository, JwtAdapter);
+    const requireAuth = deps.requireAuth ?? authMiddleware(repository, JwtAdapter);
 
     // La creación queda pública (alta de usuario sin sesión previa); el
     // resto de operaciones exige un token válido.

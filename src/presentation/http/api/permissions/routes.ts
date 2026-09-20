@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, RequestHandler } from 'express';
 import { PermissionService } from '../../../../domain/services/permission.service';
 import { PermissionRepositoryImpl } from '../../../../infrastructure/repositories/permissions/permission.repository.impl';
 import { PermissionDatasourceImpl } from '../../../../infrastructure/data/postgres/permissions/permission.datasource.impl';
@@ -11,17 +11,23 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 import { requireAdminMiddleware } from '../middlewares/require-admin.middleware';
 import { writeRateLimiterMiddleware } from '../middlewares/rate-limit.middleware';
 
+interface PermissionRoutesDeps {
+  service?: PermissionService;
+  requireAuth?: RequestHandler;
+}
+
 export class PermissionRoutes {
-  static get routes(): Router {
+  static routes(deps: PermissionRoutesDeps = {}): Router {
     const router = Router();
 
     const datasource = new PermissionDatasourceImpl();
     const repository = new PermissionRepositoryImpl(datasource);
-    const service = new PermissionService(repository, UuidAdapter);
+    const service = deps.service ?? new PermissionService(repository, UuidAdapter);
     const controller = new PermissionController(service);
 
-    const userRepository = new UserRepositoryImpl(new UserDatasourceImpl());
-    const requireAuth = authMiddleware(userRepository, JwtAdapter);
+    const requireAuth =
+      deps.requireAuth ??
+      authMiddleware(new UserRepositoryImpl(new UserDatasourceImpl()), JwtAdapter);
     const requireAdmin = requireAdminMiddleware;
 
     router.get('/', requireAuth, controller.getPermissions);

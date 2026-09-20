@@ -22,7 +22,7 @@ export class RoleController {
   public getRole = async (req: Request, res: Response, next: NextFunction) => {
     const { roleId } = req.params;
     if (typeof roleId !== 'string')
-      return res.status(400).json({ error: 'roleId param is required' });
+      return res.status(400).json(ApiResponse.error('roleId param is required'));
 
     try {
       const role = await this.service.findById(roleId);
@@ -34,7 +34,7 @@ export class RoleController {
 
   public createRole = async (req: Request, res: Response, next: NextFunction) => {
     const [error, dto] = CreateRoleDto.create(req.body);
-    if (error) return res.status(400).json({ error });
+    if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
       const role = await this.service.createRole(dto!);
@@ -47,10 +47,10 @@ export class RoleController {
   public updateRole = async (req: Request, res: Response, next: NextFunction) => {
     const { roleId } = req.params;
     if (typeof roleId !== 'string')
-      return res.status(400).json({ error: 'roleId param is required' });
+      return res.status(400).json(ApiResponse.error('roleId param is required'));
 
     const [error, dto] = UpdateRoleDto.create(req.body);
-    if (error) return res.status(400).json({ error });
+    if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
       const role = await this.service.updateRole(roleId, dto!);
@@ -63,7 +63,7 @@ export class RoleController {
   public deleteRole = async (req: Request, res: Response, next: NextFunction) => {
     const { roleId } = req.params;
     if (typeof roleId !== 'string')
-      return res.status(400).json({ error: 'roleId param is required' });
+      return res.status(400).json(ApiResponse.error('roleId param is required'));
 
     try {
       res.json(ApiResponse.success(await this.service.deleteRole(roleId)));
@@ -75,7 +75,7 @@ export class RoleController {
   public getRolePermissions = async (req: Request, res: Response, next: NextFunction) => {
     const { roleId } = req.params;
     if (typeof roleId !== 'string')
-      return res.status(400).json({ error: 'roleId param is required' });
+      return res.status(400).json(ApiResponse.error('roleId param is required'));
 
     try {
       const permissions = await this.service.getRolePermissions(roleId);
@@ -88,10 +88,10 @@ export class RoleController {
   public setRolePermissions = async (req: Request, res: Response, next: NextFunction) => {
     const { roleId } = req.params;
     if (typeof roleId !== 'string')
-      return res.status(400).json({ error: 'roleId param is required' });
+      return res.status(400).json(ApiResponse.error('roleId param is required'));
 
     const [error, dto] = SetPermissionsDto.create(req.body);
-    if (error) return res.status(400).json({ error });
+    if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
       await this.service.setRolePermissions(roleId, dto!);
@@ -105,7 +105,7 @@ export class RoleController {
   public getRoleUsers = async (req: Request, res: Response, next: NextFunction) => {
     const { roleId } = req.params;
     if (typeof roleId !== 'string')
-      return res.status(400).json({ error: 'roleId param is required' });
+      return res.status(400).json(ApiResponse.error('roleId param is required'));
 
     try {
       const users = await this.service.getRoleUsers(roleId);

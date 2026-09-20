@@ -1,11 +1,13 @@
-import { v4 as uuidv4, validate } from 'uuid';
+import { randomUUID } from 'crypto';
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export class UuidAdapter {
   static generate(): string {
-    return uuidv4();
+    return randomUUID();
   }
 
   static isValid(id: string): boolean {
-    return validate(id);
+    return UUID_REGEX.test(id);
   }
 }

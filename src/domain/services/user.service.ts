@@ -88,10 +88,9 @@ export class UserService {
     return { ok: true };
   }
 
-  // --- Asociación user_roles: este servicio es el dueño de la escritura ---
-  // GET /api/users/:id NO trae roles automáticamente (a diferencia de
-  // addresses, que sí viaja con el agregado) — Role es un agregado
-  // independiente, se pide aparte.
+  // Este servicio es dueño de la escritura de user_roles. GET /api/users/:id
+  // no trae roles automáticamente (a diferencia de addresses, que sí viaja
+  // con el agregado) — Role es un agregado independiente, se pide aparte.
 
   public async getUserRoles(id: string): Promise<RoleEntity[]> {
     await this.findEntityById(id);

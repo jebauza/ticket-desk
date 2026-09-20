@@ -22,7 +22,7 @@ export class TicketController {
   public getTicket = async (req: Request, res: Response, next: NextFunction) => {
     const { ticketId } = req.params;
     if (typeof ticketId !== 'string')
-      return res.status(400).json({ error: 'ticketId param is required' });
+      return res.status(400).json(ApiResponse.error('ticketId param is required'));
 
     try {
       const ticket = await this.service.findById(ticketId);
@@ -80,7 +80,7 @@ export class TicketController {
   ) => {
     const { desk } = req.query;
     if (typeof desk !== 'string') {
-      return res.status(400).json({ error: 'desk param is required' });
+      return res.status(400).json(ApiResponse.error('desk param is required'));
     }
 
     try {
@@ -100,11 +100,11 @@ export class TicketController {
   ) => {
     const { ticketId } = req.params;
     if (typeof ticketId !== 'string')
-      return res.status(400).json({ error: 'ticketId param is required' });
+      return res.status(400).json(ApiResponse.error('ticketId param is required'));
 
     const { desk } = req.body;
     if (typeof desk !== 'string')
-      return res.status(400).json({ error: 'desk field is required' });
+      return res.status(400).json(ApiResponse.error('desk field is required'));
 
     try {
       const ticket = await this.service.onFinishedTicket(ticketId, desk);
@@ -121,7 +121,7 @@ export class TicketController {
   ) => {
     const { desk } = req.body;
     if (typeof desk !== 'string') {
-      res.status(400).json({ error: 'desk field is required' });
+      res.status(400).json(ApiResponse.error('desk field is required'));
       return;
     }
 
@@ -142,7 +142,7 @@ export class TicketController {
   ) => {
     const { ticketId } = req.params;
     if (typeof ticketId !== 'string')
-      return res.status(400).json({ error: 'ticketId param is required' });
+      return res.status(400).json(ApiResponse.error('ticketId param is required'));
 
     try {
       const ticket = await this.service.updateTicket(ticketId, req.body);
@@ -159,7 +159,7 @@ export class TicketController {
   ) => {
     const { ticketId } = req.params;
     if (typeof ticketId !== 'string')
-      return res.status(400).json({ error: 'ticketId param is required' });
+      return res.status(400).json(ApiResponse.error('ticketId param is required'));
 
     try {
       res.json(ApiResponse.success(await this.service.deleteTicket(ticketId)));

@@ -8,13 +8,22 @@ import { JwtAdapter } from '../../../../infrastructure/adapters/jwt.adapter';
 import { AuthController } from './controller';
 import { writeRateLimiterMiddleware } from '../middlewares/rate-limit.middleware';
 
+interface AuthRoutesDeps {
+  service?: AuthService;
+}
+
 export class AuthRoutes {
-  static get routes(): Router {
+  static routes(deps: AuthRoutesDeps = {}): Router {
     const router = Router();
 
-    const datasource = new UserDatasourceImpl();
-    const repository = new UserRepositoryImpl(datasource);
-    const service = new AuthService(repository, UuidAdapter, BcryptAdapter, JwtAdapter);
+    const service =
+      deps.service ??
+      new AuthService(
+        new UserRepositoryImpl(new UserDatasourceImpl()),
+        UuidAdapter,
+        BcryptAdapter,
+        JwtAdapter,
+      );
     const controller = new AuthController(service);
 
     router.post('/register', writeRateLimiterMiddleware, controller.register);

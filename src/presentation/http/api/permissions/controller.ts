@@ -21,7 +21,7 @@ export class PermissionController {
   public getPermission = async (req: Request, res: Response, next: NextFunction) => {
     const { permissionId } = req.params;
     if (typeof permissionId !== 'string')
-      return res.status(400).json({ error: 'permissionId param is required' });
+      return res.status(400).json(ApiResponse.error('permissionId param is required'));
 
     try {
       const permission = await this.service.findById(permissionId);
@@ -33,7 +33,7 @@ export class PermissionController {
 
   public createPermission = async (req: Request, res: Response, next: NextFunction) => {
     const [error, dto] = CreatePermissionDto.create(req.body);
-    if (error) return res.status(400).json({ error });
+    if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
       const permission = await this.service.createPermission(dto!);
@@ -46,10 +46,10 @@ export class PermissionController {
   public updatePermission = async (req: Request, res: Response, next: NextFunction) => {
     const { permissionId } = req.params;
     if (typeof permissionId !== 'string')
-      return res.status(400).json({ error: 'permissionId param is required' });
+      return res.status(400).json(ApiResponse.error('permissionId param is required'));
 
     const [error, dto] = UpdatePermissionDto.create(req.body);
-    if (error) return res.status(400).json({ error });
+    if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
       const permission = await this.service.updatePermission(permissionId, dto!);
@@ -62,7 +62,7 @@ export class PermissionController {
   public deletePermission = async (req: Request, res: Response, next: NextFunction) => {
     const { permissionId } = req.params;
     if (typeof permissionId !== 'string')
-      return res.status(400).json({ error: 'permissionId param is required' });
+      return res.status(400).json(ApiResponse.error('permissionId param is required'));
 
     try {
       res.json(ApiResponse.success(await this.service.deletePermission(permissionId)));
@@ -75,7 +75,7 @@ export class PermissionController {
   public getPermissionRoles = async (req: Request, res: Response, next: NextFunction) => {
     const { permissionId } = req.params;
     if (typeof permissionId !== 'string')
-      return res.status(400).json({ error: 'permissionId param is required' });
+      return res.status(400).json(ApiResponse.error('permissionId param is required'));
 
     try {
       const roles = await this.service.getPermissionRoles(permissionId);

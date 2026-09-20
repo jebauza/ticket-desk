@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { ApiResponse } from '../shared/api-response';
 
 // Gatea con el role simple ('ADMIN'|'USER') que ya existe en UserEntity, NO
 // con el RBAC granular (Role/Permission) que este middleware protege —
@@ -7,7 +8,7 @@ import { NextFunction, Request, Response } from 'express';
 // Debe montarse después de authMiddleware (necesita req.user poblado).
 export function requireAdminMiddleware(req: Request, res: Response, next: NextFunction) {
   if (!req.user?.isAdmin) {
-    res.status(403).json({ error: 'Admin role required' });
+    res.status(403).json(ApiResponse.error('Admin role required'));
     return;
   }
 

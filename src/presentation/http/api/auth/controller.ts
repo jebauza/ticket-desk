@@ -9,7 +9,7 @@ export class AuthController {
 
   public register = async (req: Request, res: Response, next: NextFunction) => {
     const [error, dto] = CreateUserDto.create(req.body);
-    if (error) return res.status(400).json({ error });
+    if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
       const result = await this.service.register(dto!);
@@ -21,7 +21,7 @@ export class AuthController {
 
   public login = async (req: Request, res: Response, next: NextFunction) => {
     const [error, dto] = LoginUserDto.create(req.body);
-    if (error) return res.status(400).json({ error });
+    if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
       const result = await this.service.login(dto!);

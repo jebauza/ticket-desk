@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { ApiResponse } from '../shared/api-response';
 
 // Defense in depth: the real protection is parameterized queries.
 const SQLI_PATTERN =
@@ -31,7 +32,7 @@ export function sqlInjectionMiddleware(
     console.warn(
       `[sql-injection-middleware] blocked suspicious request ip=${req.ip} method=${req.method} path=${req.originalUrl}`,
     );
-    res.status(400).json({ error: 'Invalid request' });
+    res.status(400).json(ApiResponse.error('Invalid request'));
     return;
   }
 

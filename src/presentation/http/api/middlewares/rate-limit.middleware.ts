@@ -1,4 +1,5 @@
 import rateLimit from 'express-rate-limit';
+import { ApiResponse } from '../shared/api-response';
 
 // Límite general para toda la API: evita que una sola IP sature el servidor
 // (fuerza bruta, scraping agresivo, o un cliente con un bug en loop).
@@ -7,7 +8,7 @@ export const apiRateLimiterMiddleware = rateLimit({
   limit: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Too many requests, please try again later' },
+  message: ApiResponse.error('Too many requests, please try again later'),
 });
 
 // Límite más estricto para endpoints de escritura (crean/mutan tickets),
@@ -17,5 +18,5 @@ export const writeRateLimiterMiddleware = rateLimit({
   limit: 20,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Too many requests, please try again later' },
+  message: ApiResponse.error('Too many requests, please try again later'),
 });

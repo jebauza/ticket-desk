@@ -30,8 +30,8 @@ module.exports = tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    // El propio archivo de config corre en Node/CommonJS.
-    files: ['eslint.config.js'],
+    // Los ficheros de config del propio tooling corren en Node/CommonJS.
+    files: ['eslint.config.js', 'jest.config.js'],
     languageOptions: {
       globals: { require: 'readonly', module: 'writable', process: 'readonly' },
     },
@@ -44,6 +44,15 @@ module.exports = tseslint.config(
       // Deuda de estilo preexistente: no bloquean el build, pero quedan visibles.
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
+    },
+  },
+  {
+    files: ['test/**/*.ts'],
+    rules: {
+      // Un doble de test suele necesitar un parámetro del puerto que no usa
+      // (para cumplir la firma) y algún any puntual al tipar un fake.
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
 );

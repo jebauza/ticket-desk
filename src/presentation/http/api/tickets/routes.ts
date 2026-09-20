@@ -7,17 +7,21 @@ import { TicketController } from './controller';
 import { WssNotifier } from '../../../../infrastructure/websocket/wss.notifier';
 import { writeRateLimiterMiddleware } from '../middlewares/rate-limit.middleware';
 
+interface TicketRoutesDeps {
+  service?: TicketService;
+}
+
 export class TicketRoutes {
-  static get routes(): Router {
+  static routes(deps: TicketRoutesDeps = {}): Router {
     const router = Router();
 
-    const datasource = new TicketDatasourceImpl();
-    const repository = new TicketRepositoryImpl(datasource);
-    const service = new TicketService(
-      repository,
-      UuidAdapter,
-      new WssNotifier(),
-    );
+    const service =
+      deps.service ??
+      new TicketService(
+        new TicketRepositoryImpl(new TicketDatasourceImpl()),
+        UuidAdapter,
+        new WssNotifier(),
+      );
     const controller = new TicketController(service);
 
     router.get('/', controller.getTickets);

@@ -15,7 +15,7 @@ export class UserController {
       Number(req.query.page ?? 1),
       Number(req.query.limit ?? 10),
     );
-    if (error) return res.status(400).json({ error });
+    if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
       const users = await this.service.getUsers(pagination!);
@@ -28,7 +28,7 @@ export class UserController {
   public getUser = async (req: Request, res: Response, next: NextFunction) => {
     const { userId } = req.params;
     if (typeof userId !== 'string')
-      return res.status(400).json({ error: 'userId param is required' });
+      return res.status(400).json(ApiResponse.error('userId param is required'));
 
     try {
       const user = await this.service.findById(userId);
@@ -40,7 +40,7 @@ export class UserController {
 
   public createUser = async (req: Request, res: Response, next: NextFunction) => {
     const [error, dto] = CreateUserDto.create(req.body);
-    if (error) return res.status(400).json({ error });
+    if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
       const user = await this.service.createUser(dto!);
@@ -53,10 +53,10 @@ export class UserController {
   public updateUser = async (req: Request, res: Response, next: NextFunction) => {
     const { userId } = req.params;
     if (typeof userId !== 'string')
-      return res.status(400).json({ error: 'userId param is required' });
+      return res.status(400).json(ApiResponse.error('userId param is required'));
 
     const [error, dto] = UpdateUserDto.create(req.body);
-    if (error) return res.status(400).json({ error });
+    if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
       const user = await this.service.updateUser(userId, dto!);
@@ -69,7 +69,7 @@ export class UserController {
   public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     const { userId } = req.params;
     if (typeof userId !== 'string')
-      return res.status(400).json({ error: 'userId param is required' });
+      return res.status(400).json(ApiResponse.error('userId param is required'));
 
     try {
       res.json(ApiResponse.success(await this.service.deleteUser(userId)));
@@ -83,7 +83,7 @@ export class UserController {
   public getUserRoles = async (req: Request, res: Response, next: NextFunction) => {
     const { userId } = req.params;
     if (typeof userId !== 'string')
-      return res.status(400).json({ error: 'userId param is required' });
+      return res.status(400).json(ApiResponse.error('userId param is required'));
 
     try {
       const roles = await this.service.getUserRoles(userId);
@@ -96,10 +96,10 @@ export class UserController {
   public setUserRoles = async (req: Request, res: Response, next: NextFunction) => {
     const { userId } = req.params;
     if (typeof userId !== 'string')
-      return res.status(400).json({ error: 'userId param is required' });
+      return res.status(400).json(ApiResponse.error('userId param is required'));
 
     const [error, dto] = SetRolesDto.create(req.body);
-    if (error) return res.status(400).json({ error });
+    if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
       await this.service.setUserRoles(userId, dto!);
