@@ -7,3 +7,6 @@ coverage/
 
 .env
 
+
+# Worktrees de agentes en paralelo (ver skill worktree-spec-impl)
+.trees/

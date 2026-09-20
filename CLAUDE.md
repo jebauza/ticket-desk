@@ -7,10 +7,6 @@
 
 ## Parte A — Reglas del patrón (portable)
 
-> Dos sentidos de "migración" en este documento: **migración de esquema** (§8bis) es un cambio
-> versionado de la base de datos; **migración de arquitectura** (§12) es llevar un proyecto legacy
-> a este patrón. No se usan como sinónimos.
-
 ### 1. Arquitectura
 
 Tres capas, las flechas de import solo apuntan hacia adentro:
@@ -77,14 +73,14 @@ external-api...) es **carpeta**, nunca sufijo de fichero — el datasource concr
 
 ### 6. Reglas por capa
 
-| Capa | Sí | No |
-|---|---|---|
-| Entidad | invariantes, getters derivados | conocer HTTP, SQL, ni otra capa |
-| Servicio | reglas de negocio, orquestar puertos | saber de Express ni de SQL |
-| Repository | caché, traducir errores a `CustomError` | saber la tecnología concreta |
-| Datasource | su tecnología concreta | reglas de negocio |
-| Controller | parsear input → llamar servicio → mapear salida | lógica de negocio |
-| Dominio (general) | recibir todo por constructor | devolver una entidad con secretos hacia arriba |
+| Capa              | Sí                                              | No                                             |
+| ----------------- | ----------------------------------------------- | ---------------------------------------------- |
+| Entidad           | invariantes, getters derivados                  | conocer HTTP, SQL, ni otra capa                |
+| Servicio          | reglas de negocio, orquestar puertos            | saber de Express ni de SQL                     |
+| Repository        | caché, traducir errores a `CustomError`         | saber la tecnología concreta                   |
+| Datasource        | su tecnología concreta                          | reglas de negocio                              |
+| Controller        | parsear input → llamar servicio → mapear salida | lógica de negocio                              |
+| Dominio (general) | recibir todo por constructor                    | devolver una entidad con secretos hacia arriba |
 
 ### 7. Patrones en uso
 
@@ -169,13 +165,13 @@ La regla de dependencia, la estructura de carpetas, el catálogo de patrones y l
 seguridad aplican **sin cambios** en un proyecto JavaScript. Solo cambia cómo se expresa un
 contrato:
 
-| Contrato en TS | Equivalente en JS |
-|---|---|
-| `abstract class` + métodos `abstract` | clase base ES6 cuyos métodos lanzan `Error('Method not implemented')`; las subclases sobreescriben |
-| `interface` de capacidad técnica | duck typing + `@typedef` JSDoc; el adapter se pasa igual, sin `implements` |
-| constructor privado | campo/constructor privado `#`, o `static create()` documentado como única vía |
-| DTO de request `[error, dto]` | idéntico, sin tipos |
-| DTO de response tipado | el servicio devuelve un objeto plano construido por el mapper de respuesta; sin compilador que lo garantice, el test del servicio es obligatorio para probar que el secreto no sale |
+| Contrato en TS                        | Equivalente en JS                                                                                                                                                                   |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `abstract class` + métodos `abstract` | clase base ES6 cuyos métodos lanzan `Error('Method not implemented')`; las subclases sobreescriben                                                                                  |
+| `interface` de capacidad técnica      | duck typing + `@typedef` JSDoc; el adapter se pasa igual, sin `implements`                                                                                                          |
+| constructor privado                   | campo/constructor privado `#`, o `static create()` documentado como única vía                                                                                                       |
+| DTO de request `[error, dto]`         | idéntico, sin tipos                                                                                                                                                                 |
+| DTO de response tipado                | el servicio devuelve un objeto plano construido por el mapper de respuesta; sin compilador que lo garantice, el test del servicio es obligatorio para probar que el secreto no sale |
 
 ### 11. Definición de "terminado"
 
@@ -224,6 +220,7 @@ lee la inversa (`getRoleUsers`).
 cableados en ningún composition root.
 
 **Deuda conocida** (estado real, no objetivo — no copiar al reemplazar esta sección):
+
 - `BcryptAdapter` usa `hashSync`/`compareSync` (bloquea el event loop); cambiarlo requiere mover el
   puerto `PasswordHasher` a `Promise`.
 - El WebSocket (`WssServer`) no autentica conexiones ni filtra por cliente — hoy solo emite un

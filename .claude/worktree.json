@@ -1,0 +1,4 @@
+{
+  "copy": [".env"],
+  "portVars": ["APP_PORT"]
+}
