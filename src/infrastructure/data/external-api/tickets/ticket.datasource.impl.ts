@@ -1,4 +1,7 @@
 import { TicketEntity } from '../../../../domain/entities/ticket.entity';
+import { PaginationDto } from '../../../../domain/dtos/shared/pagination.dto';
+import { PaginatedResult } from '../../../../domain/dtos/shared/paginated-result.dto';
+import { TicketFiltersDto } from '../../../../domain/dtos/tickets/request/ticket-filters.dto';
 import { TicketDatasource } from '../../../../domain/datasources/ticket.datasource';
 import { ExternalApiClient } from '../external-api.client';
 import { TicketApiMapper, TicketApiResponse } from './ticket.mapper';
@@ -21,6 +24,27 @@ export class TicketDatasourceImpl extends TicketDatasource {
   async getAll(): Promise<TicketEntity[]> {
     const { data } = await this.client.get<TicketApiResponse[]>('/tickets');
     return data.map(TicketApiMapper.fromResponse);
+  }
+
+  async findPaginated(
+    filters: TicketFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<TicketEntity>> {
+    const params = new URLSearchParams({
+      offset: String(pagination.offset),
+      limit: String(pagination.limit),
+    });
+    if (filters.status) params.set('status', filters.status);
+
+    const { data } = await this.client.get<{ items: TicketApiResponse[]; total: number }>(
+      `/tickets?${params.toString()}`,
+    );
+
+    return PaginatedResult.create(
+      data.items.map(TicketApiMapper.fromResponse),
+      data.total,
+      pagination,
+    );
   }
 
   async getPending(): Promise<TicketEntity[]> {

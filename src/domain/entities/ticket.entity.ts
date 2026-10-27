@@ -9,6 +9,9 @@ export interface TicketCreateProps {
 
 export type TicketUpdateProps = Partial<Omit<TicketCreateProps, 'id'>>;
 
+export const TICKET_STATUSES = ['pending', 'in-progress', 'done'] as const;
+export type TicketStatus = (typeof TICKET_STATUSES)[number];
+
 export class TicketEntity {
   private constructor(
     public id: string,
@@ -21,6 +24,11 @@ export class TicketEntity {
 
   public get isPending(): boolean {
     return this.handleAtDesk === null;
+  }
+
+  public get status(): TicketStatus {
+    if (this.done) return 'done';
+    return this.isPending ? 'pending' : 'in-progress';
   }
 
   static create(props: TicketCreateProps): TicketEntity {

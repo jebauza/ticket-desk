@@ -33,7 +33,7 @@ export class UserDatasourceImpl extends UserDatasource {
 
   async getAll(pagination: PaginationDto): Promise<UserEntity[]> {
     const { data } = await this.client.get<UserApiResponse[]>(
-      `/users?page=${pagination.page}&limit=${pagination.limit}`,
+      `/users?offset=${pagination.offset}&limit=${pagination.limit}`,
     );
     return data.map(UserApiMapper.fromResponse);
   }

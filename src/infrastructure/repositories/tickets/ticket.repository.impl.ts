@@ -2,6 +2,9 @@ import { TicketEntity } from '../../../domain/entities/ticket.entity';
 import { CustomError } from '../../../domain/errors/custom.error';
 import { TicketDatasource } from '../../../domain/datasources/ticket.datasource';
 import { TicketRepository } from '../../../domain/repositories/ticket.repository';
+import { PaginationDto } from '../../../domain/dtos/shared/pagination.dto';
+import { PaginatedResult } from '../../../domain/dtos/shared/paginated-result.dto';
+import { TicketFiltersDto } from '../../../domain/dtos/tickets/request/ticket-filters.dto';
 
 export class TicketRepositoryImpl extends TicketRepository {
   private cache: TicketEntity[] | null = null;
@@ -24,6 +27,17 @@ export class TicketRepositoryImpl extends TicketRepository {
     try {
       this.cache = await this.datasource.getAll();
       return this.cache;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  async findPaginated(
+    filters: TicketFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<TicketEntity>> {
+    try {
+      return await this.datasource.findPaginated(filters, pagination);
     } catch (error) {
       throw this.handleError(error);
     }

@@ -1,4 +1,7 @@
 import { TicketEntity } from '../../../../domain/entities/ticket.entity';
+import { PaginationDto } from '../../../../domain/dtos/shared/pagination.dto';
+import { PaginatedResult } from '../../../../domain/dtos/shared/paginated-result.dto';
+import { TicketFiltersDto } from '../../../../domain/dtos/tickets/request/ticket-filters.dto';
 import { TicketDatasource } from '../../../../domain/datasources/ticket.datasource';
 import { PostgresDatabase } from '../postgres.database';
 import { TicketMapper } from './ticket.mapper';
@@ -23,6 +26,33 @@ export class TicketDatasourceImpl extends TicketDatasource {
     );
 
     return rows.map(TicketMapper.fromRow);
+  }
+
+  async findPaginated(
+    filters: TicketFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<TicketEntity>> {
+    const statusFilter = `WHERE ($1::text IS NULL
+      OR ($1 = 'pending' AND handle_at_desk IS NULL)
+      OR ($1 = 'in-progress' AND handle_at_desk IS NOT NULL AND done = false)
+      OR ($1 = 'done' AND done = true))`;
+    const pageSql = `SELECT * FROM tickets ${statusFilter} ORDER BY number ASC LIMIT $2 OFFSET $3`;
+    const countSql = `SELECT COUNT(*)::int AS count FROM tickets ${statusFilter}`;
+
+    const [page, count] = await Promise.all([
+      this.pool.query(pageSql, [
+        filters.status ?? null,
+        pagination.limit,
+        pagination.offset,
+      ]),
+      this.pool.query(countSql, [filters.status ?? null]),
+    ]);
+
+    return PaginatedResult.create(
+      page.rows.map(TicketMapper.fromRow),
+      Number(count.rows[0]?.count ?? 0),
+      pagination,
+    );
   }
 
   async getPending(): Promise<TicketEntity[]> {

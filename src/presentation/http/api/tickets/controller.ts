@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 import { TicketService } from '../../../../domain/services/ticket.service';
 import { TicketPresenter } from './presenters/ticket.presenter';
 import { ApiResponse } from '../shared/api-response';
+import { PaginationDto } from '../../../../domain/dtos/shared/pagination.dto';
+import { TicketFiltersDto } from '../../../../domain/dtos/tickets/request/ticket-filters.dto';
 
 export class TicketController {
   constructor(private readonly service: TicketService) {}
@@ -11,9 +13,15 @@ export class TicketController {
     res: Response,
     next: NextFunction,
   ) => {
+    const [paginationError, pagination] = PaginationDto.fromQuery(req.query);
+    if (paginationError) return res.status(400).json(ApiResponse.error(paginationError));
+
+    const [filtersError, filters] = TicketFiltersDto.create(req.query);
+    if (filtersError) return res.status(400).json(ApiResponse.error(filtersError));
+
     try {
-      const tickets = await this.service.getTickets();
-      res.json(ApiResponse.success(TicketPresenter.fromEntities(tickets)));
+      const result = await this.service.getTickets(filters!, pagination!);
+      res.json(ApiResponse.paginated(result.map(TicketPresenter.fromEntity)));
     } catch (error) {
       next(error);
     }

@@ -1,6 +1,8 @@
 import { TicketRepositoryImpl } from '../../../src/infrastructure/repositories/tickets/ticket.repository.impl';
 import { TicketDatasource } from '../../../src/domain/datasources/ticket.datasource';
 import { TicketEntity } from '../../../src/domain/entities/ticket.entity';
+import { PaginationDto } from '../../../src/domain/dtos/shared/pagination.dto';
+import { PaginatedResult } from '../../../src/domain/dtos/shared/paginated-result.dto';
 
 class FakeDatasource extends TicketDatasource {
   getAllCalls = 0;
@@ -12,6 +14,9 @@ class FakeDatasource extends TicketDatasource {
   async getAll() {
     this.getAllCalls++;
     return this.tickets;
+  }
+  async findPaginated(_filters: unknown, pagination: PaginationDto) {
+    return PaginatedResult.create(this.tickets, this.tickets.length, pagination);
   }
   async create(id: string) {
     const ticket = TicketEntity.create({ id, number: this.tickets.length + 1 });

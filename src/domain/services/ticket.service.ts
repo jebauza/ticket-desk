@@ -3,6 +3,9 @@ import { CustomError } from '../errors/custom.error';
 import { IdManager } from '../interfaces/id-manager';
 import { RealtimeNotifier } from '../interfaces/realtime-notifier';
 import { TicketRepository } from '../repositories/ticket.repository';
+import { PaginationDto } from '../dtos/shared/pagination.dto';
+import { PaginatedResult } from '../dtos/shared/paginated-result.dto';
+import { TicketFiltersDto } from '../dtos/tickets/request/ticket-filters.dto';
 
 export class TicketService {
   constructor(
@@ -39,8 +42,11 @@ export class TicketService {
     return ticket;
   }
 
-  public getTickets(): Promise<TicketEntity[]> {
-    return this.repository.getAll();
+  public getTickets(
+    filters: TicketFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<TicketEntity>> {
+    return this.repository.findPaginated(filters, pagination);
   }
 
   public getPendingTickets(): Promise<TicketEntity[]> {

@@ -47,11 +47,9 @@ export class UserDatasourceImpl extends UserDatasource {
   }
 
   async getAll(pagination: PaginationDto): Promise<UserEntity[]> {
-    const offset = (pagination.page - 1) * pagination.limit;
-
     const { rows } = await this.pool.query(
       'SELECT * FROM users ORDER BY created_at ASC LIMIT $1 OFFSET $2',
-      [pagination.limit, offset],
+      [pagination.limit, pagination.offset],
     );
 
     return rows.map(UserMapper.fromRow);

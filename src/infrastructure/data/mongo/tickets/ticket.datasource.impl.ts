@@ -1,5 +1,8 @@
-import { Collection } from 'mongodb';
-import { TicketEntity } from '../../../../domain/entities/ticket.entity';
+import { Collection, Filter } from 'mongodb';
+import { TicketEntity, TicketStatus } from '../../../../domain/entities/ticket.entity';
+import { PaginationDto } from '../../../../domain/dtos/shared/pagination.dto';
+import { PaginatedResult } from '../../../../domain/dtos/shared/paginated-result.dto';
+import { TicketFiltersDto } from '../../../../domain/dtos/tickets/request/ticket-filters.dto';
 import { TicketDatasource } from '../../../../domain/datasources/ticket.datasource';
 import { MongoDatabase } from '../mongo.database';
 import { TicketDocument, TicketMongoMapper } from './ticket.mapper';
@@ -8,6 +11,12 @@ interface CounterDocument {
   _id: string;
   seq: number;
 }
+
+const STATUS_FILTERS: Record<TicketStatus, Filter<TicketDocument>> = {
+  pending: { handleAtDesk: null },
+  'in-progress': { handleAtDesk: { $ne: null }, done: false },
+  done: { done: true },
+};
 
 export class TicketDatasourceImpl extends TicketDatasource {
   private get collection(): Collection<TicketDocument> {
@@ -21,6 +30,25 @@ export class TicketDatasourceImpl extends TicketDatasource {
   async getAll(): Promise<TicketEntity[]> {
     const docs = await this.collection.find().sort({ number: 1 }).toArray();
     return docs.map(TicketMongoMapper.fromDocument);
+  }
+
+  async findPaginated(
+    filters: TicketFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<TicketEntity>> {
+    const filter = filters.status ? STATUS_FILTERS[filters.status] : {};
+
+    const [docs, total] = await Promise.all([
+      this.collection
+        .find(filter)
+        .sort({ number: 1 })
+        .skip(pagination.offset)
+        .limit(pagination.limit)
+        .toArray(),
+      this.collection.countDocuments(filter),
+    ]);
+
+    return PaginatedResult.create(docs.map(TicketMongoMapper.fromDocument), total, pagination);
   }
 
   async getPending(): Promise<TicketEntity[]> {

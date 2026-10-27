@@ -36,7 +36,7 @@ export class UserDatasourceImpl extends UserDatasource {
     const docs = await this.collection
       .find()
       .sort({ createdAt: 1 })
-      .skip((pagination.page - 1) * pagination.limit)
+      .skip(pagination.offset)
       .limit(pagination.limit)
       .toArray();
 

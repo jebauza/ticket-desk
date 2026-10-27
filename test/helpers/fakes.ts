@@ -4,6 +4,8 @@ import { UserEntity } from '../../src/domain/entities/user.entity';
 import { UserRepository } from '../../src/domain/repositories/user.repository';
 import { RoleEntity } from '../../src/domain/entities/role.entity';
 import { PaginationDto } from '../../src/domain/dtos/shared/pagination.dto';
+import { PaginatedResult } from '../../src/domain/dtos/shared/paginated-result.dto';
+import { TicketFiltersDto } from '../../src/domain/dtos/tickets/request/ticket-filters.dto';
 import { IdManager } from '../../src/domain/interfaces/id-manager';
 import { PasswordHasher } from '../../src/domain/interfaces/password-hasher';
 import { TokenManager } from '../../src/domain/interfaces/token-manager';
@@ -40,6 +42,18 @@ export class FakeTicketRepository extends TicketRepository {
   async getAll() {
     this.getAllCalls++;
     return this.tickets;
+  }
+
+  async findPaginated(filters: TicketFiltersDto, pagination: PaginationDto) {
+    const matching = this.tickets
+      .filter((t) => !filters.status || t.status === filters.status)
+      .sort((a, b) => a.number - b.number);
+
+    return PaginatedResult.create(
+      matching.slice(pagination.offset, pagination.offset + pagination.limit),
+      matching.length,
+      pagination,
+    );
   }
 
   async create(id: string) {

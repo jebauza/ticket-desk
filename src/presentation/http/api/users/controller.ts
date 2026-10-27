@@ -11,10 +11,7 @@ export class UserController {
   constructor(private readonly service: UserService) {}
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
-    const [error, pagination] = PaginationDto.create(
-      Number(req.query.page ?? 1),
-      Number(req.query.limit ?? 10),
-    );
+    const [error, pagination] = PaginationDto.fromQuery(req.query);
     if (error) return res.status(400).json(ApiResponse.error(error));
 
     try {
