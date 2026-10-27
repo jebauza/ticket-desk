@@ -43,14 +43,6 @@ export class TicketRepositoryImpl extends TicketRepository {
     }
   }
 
-  async getPending(): Promise<TicketEntity[]> {
-    try {
-      return await this.datasource.getPending();
-    } catch (error) {
-      throw this.handleError(error);
-    }
-  }
-
   async getLast(): Promise<TicketEntity | null> {
     try {
       return await this.datasource.getLast();

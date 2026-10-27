@@ -40,8 +40,8 @@ async function loadInitial() {
   lblCurrentTicket.innerHTML = workingTicket?.number || 'NINGUNO';
 
   try {
-    const { body } = await HttpClient.get('/api/tickets/pending');
-    checkTicketCount(body.data.length);
+    const { body } = await HttpClient.get('/api/tickets', {status: 'pending'});
+    checkTicketCount(body.meta.total);
   } catch (error) {
     console.error(error);
   }
@@ -57,6 +57,18 @@ async function getCurrentTicket() {
   }
 }
 
+async function ticketDone() {
+  if (workingTicket) {
+    try {
+        const { body } = await HttpClient.put(`/api/tickets/done/${workingTicket.id}`, {desk: deskName});
+        workingTicket = null;
+        lblCurrentTicket.innerHTML = 'NINGUNO';
+      } catch (error) {
+        console.log(error);
+      }
+  }
+}
+
 async function getNextTicket() {
   try {
     const { body } = await HttpClient.post(`/api/tickets/desk/next-ticket`, {desk: deskName});
@@ -66,6 +78,16 @@ async function getNextTicket() {
     return null;
   }
 }
+
+btnDone.addEventListener('click', async () => {
+  await ticketDone();
+});
+
+btnNext.addEventListener('click', async () => {
+  await ticketDone();
+  workingTicket = await getNextTicket();
+  lblCurrentTicket.innerHTML = workingTicket?.number || 'NINGUNO';
+});
 
 
 // Init

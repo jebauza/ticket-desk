@@ -19,6 +19,14 @@ export class HttpClient {
     });
   }
 
+  static async put(url, body, headers = {}) {
+    return HttpClient.#request(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...headers },
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  }
+
   static async #request(url, options) {
     const res = await fetch(url, options);
     const body = await res.json().catch(() => null);

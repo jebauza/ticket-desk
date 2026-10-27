@@ -15,8 +15,12 @@ export class TicketService {
   ) {}
 
   private async onTicketNumberChanged() {
-    const count = (await this.repository.getPending()).length;
-    this.notifier.emit('on-ticket-number-changed', count);
+    const [, pagination] = PaginationDto.fromPage(1, 1);
+    const { total } = await this.repository.findPaginated(
+      { status: 'pending' },
+      pagination!,
+    );
+    this.notifier.emit('on-ticket-number-changed', total);
   }
 
   public async seedTickets(): Promise<void> {
@@ -47,10 +51,6 @@ export class TicketService {
     pagination: PaginationDto,
   ): Promise<PaginatedResult<TicketEntity>> {
     return this.repository.findPaginated(filters, pagination);
-  }
-
-  public getPendingTickets(): Promise<TicketEntity[]> {
-    return this.repository.getPending();
   }
 
   public async getLastTicket(): Promise<TicketEntity> {
@@ -117,8 +117,6 @@ export class TicketService {
 
     const current = await this.findById(id);
 
-    // Merge del patch parcial contra la entidad actual: hacia abajo (repo/datasource)
-    // siempre viaja una TicketEntity completa y válida, nunca un objeto parcial.
     const updated = TicketEntity.create({
       id: current.id,
       number: changes.number ?? current.number,

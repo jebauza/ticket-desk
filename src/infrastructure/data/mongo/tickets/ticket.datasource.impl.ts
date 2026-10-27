@@ -1,5 +1,8 @@
 import { Collection, Filter } from 'mongodb';
-import { TicketEntity, TicketStatus } from '../../../../domain/entities/ticket.entity';
+import {
+  TicketEntity,
+  TicketStatus,
+} from '../../../../domain/entities/ticket.entity';
 import { PaginationDto } from '../../../../domain/dtos/shared/pagination.dto';
 import { PaginatedResult } from '../../../../domain/dtos/shared/paginated-result.dto';
 import { TicketFiltersDto } from '../../../../domain/dtos/tickets/request/ticket-filters.dto';
@@ -48,16 +51,11 @@ export class TicketDatasourceImpl extends TicketDatasource {
       this.collection.countDocuments(filter),
     ]);
 
-    return PaginatedResult.create(docs.map(TicketMongoMapper.fromDocument), total, pagination);
-  }
-
-  async getPending(): Promise<TicketEntity[]> {
-    const docs = await this.collection
-      .find({ handleAtDesk: null })
-      .sort({ number: 1 })
-      .toArray();
-
-    return docs.map(TicketMongoMapper.fromDocument);
+    return PaginatedResult.create(
+      docs.map(TicketMongoMapper.fromDocument),
+      total,
+      pagination,
+    );
   }
 
   async getLast(): Promise<TicketEntity | null> {

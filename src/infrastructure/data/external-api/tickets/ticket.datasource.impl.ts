@@ -36,21 +36,16 @@ export class TicketDatasourceImpl extends TicketDatasource {
     });
     if (filters.status) params.set('status', filters.status);
 
-    const { data } = await this.client.get<{ items: TicketApiResponse[]; total: number }>(
-      `/tickets?${params.toString()}`,
-    );
+    const { data } = await this.client.get<{
+      items: TicketApiResponse[];
+      total: number;
+    }>(`/tickets?${params.toString()}`);
 
     return PaginatedResult.create(
       data.items.map(TicketApiMapper.fromResponse),
       data.total,
       pagination,
     );
-  }
-
-  async getPending(): Promise<TicketEntity[]> {
-    const { data } =
-      await this.client.get<TicketApiResponse[]>('/tickets/pending');
-    return data.map(TicketApiMapper.fromResponse);
   }
 
   async getLast(): Promise<TicketEntity | null> {

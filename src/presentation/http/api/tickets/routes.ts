@@ -28,7 +28,6 @@ export class TicketRoutes {
     router.post('/', writeRateLimiterMiddleware, controller.createTicket);
 
     router.get('/last', controller.getLastTicket);
-    router.get('/pending', controller.pendingTickets);
     router.get('/working-on', controller.workingOn);
 
     router.get('/desk/current', controller.currentByDesk);

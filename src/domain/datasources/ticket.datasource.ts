@@ -14,7 +14,6 @@ export abstract class TicketDatasource {
   abstract update(id: string, data: TicketEntity): Promise<TicketEntity | null>;
   abstract delete(id: string): Promise<boolean>;
 
-  abstract getPending(): Promise<TicketEntity[]>;
   abstract getLast(): Promise<TicketEntity | null>;
   abstract getWorkingOn(limit: number): Promise<TicketEntity[]>;
   abstract nextPending(desk: string): Promise<TicketEntity | null>;

@@ -55,14 +55,6 @@ export class TicketDatasourceImpl extends TicketDatasource {
     );
   }
 
-  async getPending(): Promise<TicketEntity[]> {
-    const { rows } = await this.pool.query(
-      'SELECT * FROM tickets WHERE handle_at_desk IS NULL ORDER BY number ASC',
-    );
-
-    return rows.map(TicketMapper.fromRow);
-  }
-
   async getLast(): Promise<TicketEntity | null> {
     const { rows } = await this.pool.query(
       'SELECT * FROM tickets ORDER BY number DESC LIMIT 1',

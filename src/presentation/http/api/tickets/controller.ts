@@ -14,10 +14,12 @@ export class TicketController {
     next: NextFunction,
   ) => {
     const [paginationError, pagination] = PaginationDto.fromQuery(req.query);
-    if (paginationError) return res.status(400).json(ApiResponse.error(paginationError));
+    if (paginationError)
+      return res.status(400).json(ApiResponse.error(paginationError));
 
     const [filtersError, filters] = TicketFiltersDto.create(req.query);
-    if (filtersError) return res.status(400).json(ApiResponse.error(filtersError));
+    if (filtersError)
+      return res.status(400).json(ApiResponse.error(filtersError));
 
     try {
       const result = await this.service.getTickets(filters!, pagination!);
@@ -27,10 +29,16 @@ export class TicketController {
     }
   };
 
-  public getTicket = async (req: Request, res: Response, next: NextFunction) => {
+  public getTicket = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     const { ticketId } = req.params;
     if (typeof ticketId !== 'string')
-      return res.status(400).json(ApiResponse.error('ticketId param is required'));
+      return res
+        .status(400)
+        .json(ApiResponse.error('ticketId param is required'));
 
     try {
       const ticket = await this.service.findById(ticketId);
@@ -55,19 +63,6 @@ export class TicketController {
     }
   };
 
-  public pendingTickets = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    try {
-      const tickets = await this.service.getPendingTickets();
-      res.json(ApiResponse.success(TicketPresenter.fromEntities(tickets)));
-    } catch (error) {
-      next(error);
-    }
-  };
-
   public createTicket = async (
     req: Request,
     res: Response,
@@ -75,7 +70,9 @@ export class TicketController {
   ) => {
     try {
       const ticket = await this.service.createTicket();
-      res.status(201).json(ApiResponse.success(TicketPresenter.fromEntity(ticket)));
+      res
+        .status(201)
+        .json(ApiResponse.success(TicketPresenter.fromEntity(ticket)));
     } catch (error) {
       next(error);
     }
@@ -108,7 +105,9 @@ export class TicketController {
   ) => {
     const { ticketId } = req.params;
     if (typeof ticketId !== 'string')
-      return res.status(400).json(ApiResponse.error('ticketId param is required'));
+      return res
+        .status(400)
+        .json(ApiResponse.error('ticketId param is required'));
 
     const { desk } = req.body;
     if (typeof desk !== 'string')
@@ -150,7 +149,9 @@ export class TicketController {
   ) => {
     const { ticketId } = req.params;
     if (typeof ticketId !== 'string')
-      return res.status(400).json(ApiResponse.error('ticketId param is required'));
+      return res
+        .status(400)
+        .json(ApiResponse.error('ticketId param is required'));
 
     try {
       const ticket = await this.service.updateTicket(ticketId, req.body);
@@ -167,7 +168,9 @@ export class TicketController {
   ) => {
     const { ticketId } = req.params;
     if (typeof ticketId !== 'string')
-      return res.status(400).json(ApiResponse.error('ticketId param is required'));
+      return res
+        .status(400)
+        .json(ApiResponse.error('ticketId param is required'));
 
     try {
       res.json(ApiResponse.success(await this.service.deleteTicket(ticketId)));
