@@ -11,6 +11,11 @@ export class TicketService {
     private readonly notifier: RealtimeNotifier,
   ) {}
 
+  private async onTicketNumberChanged() {
+    const count = (await this.repository.getPending()).length;
+    this.notifier.emit('on-ticket-number-changed', count);
+  }
+
   public async seedTickets(): Promise<void> {
     const count = await this.repository.countAll();
     if (count > 0) return;
@@ -135,10 +140,5 @@ export class TicketService {
     if (!deleted) throw CustomError.notFound(`Id (${id}) not found`);
 
     return { ok: true };
-  }
-
-  private async onTicketNumberChanged() {
-    const count = (await this.repository.getPending()).length;
-    this.notifier.emit('on-ticket-number-changed', count);
   }
 }

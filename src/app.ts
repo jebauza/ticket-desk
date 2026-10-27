@@ -47,7 +47,9 @@ async function main() {
   server.setRoutes(ApiRoutes.routes);
 
   httpServer.listen(port, () => {
-    const baseUrl = `${envs.APP_URL}:${port}`;
+    const url = new URL(envs.APP_URL);
+    url.port = String(port);
+    const baseUrl = url.origin;
     console.log(`HTML listening on ${baseUrl}`);
     console.log(`API listening on ${baseUrl}/api`);
   });

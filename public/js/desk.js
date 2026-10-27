@@ -25,6 +25,16 @@ socketClient.on('message', (raw) => {
   checkTicketCount(payload);
 });
 
+function checkTicketCount(currentCount = 0) {
+  if (currentCount === 0 ) {
+    noMoreAlert.classList.remove('d-none');
+    lblPending.innerHTML = '';
+  } else {
+    noMoreAlert.classList.add('d-none');
+    lblPending.innerHTML = currentCount;
+  }
+}
+
 async function loadInitial() {
   workingTicket = (await getCurrentTicket()) || (await getNextTicket());
   lblCurrentTicket.innerHTML = workingTicket?.number || 'NINGUNO';
@@ -34,16 +44,6 @@ async function loadInitial() {
     checkTicketCount(body.data.length);
   } catch (error) {
     console.error(error);
-  }
-}
-
-function checkTicketCount(currentCount = 0) {
-  if (currentCount === 0 ) {
-    noMoreAlert.classList.remove('d-none');
-    lblPending.innerHTML = '';
-  } else {
-    noMoreAlert.classList.add('d-none');
-    lblPending.innerHTML = currentCount;
   }
 }
 

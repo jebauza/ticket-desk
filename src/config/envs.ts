@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { get } from 'env-var';
 
 export const envs = {
-  APP_URL: get('APP_URL').required().asUrlString(),
+  APP_URL: get('APP_URL').required().asUrlString().replace(/\/$/, ''),
   APP_PORT: get('APP_PORT').required().asPortNumber(),
 
   DB_HOST: get('DB_HOST').required().asString(),
