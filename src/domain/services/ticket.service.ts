@@ -16,11 +16,13 @@ export class TicketService {
 
   private async onTicketNumberChanged() {
     const [, pagination] = PaginationDto.fromPage(1, 1);
-    const { total } = await this.repository.findPaginated(
-      { status: 'pending' },
-      pagination!,
-    );
+    const { total } = await this.repository.findPaginated({ status: 'pending' }, pagination!);
     this.notifier.emit('on-ticket-number-changed', total);
+  }
+
+  private async onTicketWorkingChanged() {
+    const tickets = await this.repository.getWorkingOn(4);
+    this.notifier.emit('on-ticket-working-changed', JSON.stringify({ tickets }));
   }
 
   public async seedTickets(): Promise<void> {
@@ -77,29 +79,24 @@ export class TicketService {
 
   public async nextTicket(desk: string): Promise<TicketEntity | null> {
     const ticket =
-      (await this.repository.getCurrentByDesk(desk)) ||
-      (await this.repository.nextPending(desk));
+      (await this.repository.getCurrentByDesk(desk)) || (await this.repository.nextPending(desk));
 
     this.onTicketNumberChanged();
+    this.onTicketWorkingChanged();
 
     return ticket;
   }
 
-  public async getCurrentTicketByDesk(
-    desk: string,
-  ): Promise<TicketEntity | null> {
+  public async getCurrentTicketByDesk(desk: string): Promise<TicketEntity | null> {
     return await this.repository.getCurrentByDesk(desk);
   }
 
   public async onFinishedTicket(id: string, desk: string) {
-    if (!this.idManager.isValid(id))
-      throw CustomError.badRequest('Ticket id is not a valid uuid');
+    if (!this.idManager.isValid(id)) throw CustomError.badRequest('Ticket id is not a valid uuid');
 
     const ticket = await this.findById(id);
     if (ticket.handleAtDesk != desk)
-      throw CustomError.badRequest(
-        `Ticket was handled by another desk ${ticket.handleAtDesk}`,
-      );
+      throw CustomError.badRequest(`Ticket was handled by another desk ${ticket.handleAtDesk}`);
     ticket.done = true;
 
     const updated = await this.repository.update(ticket.id, ticket);
@@ -108,12 +105,8 @@ export class TicketService {
     return updated;
   }
 
-  public async updateTicket(
-    id: string,
-    changes: TicketUpdateProps,
-  ): Promise<TicketEntity> {
-    if (!this.idManager.isValid(id))
-      throw CustomError.badRequest('Ticket id is not a valid uuid');
+  public async updateTicket(id: string, changes: TicketUpdateProps): Promise<TicketEntity> {
+    if (!this.idManager.isValid(id)) throw CustomError.badRequest('Ticket id is not a valid uuid');
 
     const current = await this.findById(id);
 
@@ -122,11 +115,8 @@ export class TicketService {
       number: changes.number ?? current.number,
       createAt: changes.createAt ?? current.createAt,
       handleAtDesk:
-        changes.handleAtDesk !== undefined
-          ? changes.handleAtDesk
-          : current.handleAtDesk,
-      handleAt:
-        changes.handleAt !== undefined ? changes.handleAt : current.handleAt,
+        changes.handleAtDesk !== undefined ? changes.handleAtDesk : current.handleAtDesk,
+      handleAt: changes.handleAt !== undefined ? changes.handleAt : current.handleAt,
       done: changes.done ?? current.done,
     });
 
@@ -137,8 +127,7 @@ export class TicketService {
   }
 
   public async deleteTicket(id: string): Promise<{ ok: true }> {
-    if (!this.idManager.isValid(id))
-      throw CustomError.badRequest('Ticket id is not a valid uuid');
+    if (!this.idManager.isValid(id)) throw CustomError.badRequest('Ticket id is not a valid uuid');
 
     const deleted = await this.repository.delete(id);
     if (!deleted) throw CustomError.notFound(`Id (${id}) not found`);

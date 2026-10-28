@@ -65,7 +65,12 @@ export class TicketDatasourceImpl extends TicketDatasource {
 
   async getWorkingOn(limit: number): Promise<TicketEntity[]> {
     const { rows } = await this.pool.query(
-      'SELECT * FROM tickets WHERE handle_at_desk IS NOT NULL ORDER BY handle_at DESC LIMIT $1',
+      `SELECT *
+       FROM tickets
+       WHERE handle_at_desk IS NOT NULL
+         AND done = false
+       ORDER BY handle_at DESC
+       LIMIT $1`,
       [limit],
     );
 

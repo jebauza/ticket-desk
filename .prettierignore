@@ -1,0 +1,4 @@
+dist
+node_modules
+postgres
+package-lock.json
